@@ -1,734 +1,1723 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>Room Designer</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    h1, h2 {
-      margin-bottom: 10px;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 20px;
-      max-width: 900px;
-    }
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      min-width: 160px;
-    }
-    label {
-      margin-bottom: 0.3rem;
-      font-weight: bold;
-    }
-    input[type="number"],
-    input[type="color"],
-    select {
-      padding: 0.3rem;
-      font-size: 1rem;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .radio-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      align-items: center;
-    }
 
-    #diagramWrapper {
-      border: 1px solid #333;
-      display: inline-block;
-      padding: 10px;
-      margin-top: 20px;
-    }
-    svg {
-      background-color: #f8f8f8;
-    }
+<meta charset="UTF-8" />
 
-    /* Basic shapes */
-    #roomRect {
-      fill: #ddd;
-      stroke: #000;
-      stroke-width: 2px;
-    }
-    #stageRect {
-      fill: #a5c9ff;
-      stroke: #333;
-      stroke-width: 1px;
-    }
-    #audienceRect {
-      fill: #ffffcc;
-      stroke: #333;
-      stroke-width: 1px;
-    }
-    #speakerRect {
-      fill: #999;
-      stroke: #000;
-      stroke-width: 1px;
-    }
+<title>Room Designer</title>
 
-    /* Single path for the on-axis line (gradient for fun) */
-    #throwPath {
-      fill: none;
-      stroke-dasharray: 4,4;
-      stroke-width: 2px;
-      stroke-linecap: round;
-      stroke: url(#greenRedGradient);
-    }
+<style>
 
-    /* Horizontal coverage line (blue) */
-    #coverageLine {
-      stroke: blue;
-      stroke-width: 3px;
-      fill: none;
-      display: none; /* We show this only if Show Lateral Coverage is checked + we have an intersection */
-    }
+body {
 
-    text {
-      font-size: 14px;
-      fill: #333;
-    }
+font-family: Arial, sans-serif;
 
-    #throwOutput, #splOutput, #larOutput {
-      margin-top: 1rem;
-      font-weight: bold;
-      color: #060;
-    }
-  </style>
-</head>
-<body>
-  <h1>Room Designer
-  </h1>
+margin: 20px;
 
-  <!-- Unit Switch -->
-  <div class="controls">
-    <div class="control-group">
-      <label>Units:</label>
-      <div class="radio-group">
-        <input type="radio" id="unitsFeet" name="units" value="feet" checked />
-        <label for="unitsFeet">Feet</label>
-        <input type="radio" id="unitsMeters" name="units" value="meters" />
-        <label for="unitsMeters">Meters</label>
-      </div>
-    </div>
-  </div>
-
-  <!-- Room & Stage Controls -->
-  <div class="controls">
-    <div class="control-group">
-      <label for="roomLength">Room Length:</label>
-      <input type="number" id="roomLength" value="40" min="0" step="1" />
-    </div>
-    <div class="control-group">
-      <label for="roomHeight">Room Height:</label>
-      <input type="number" id="roomHeight" value="14" min="0" step="1" />
-    </div>
-
-    <div class="control-group">
-      <label>Stage Side:</label>
-      <div class="radio-group">
-        <input type="radio" id="stageLeft" name="stageSide" value="left" checked />
-        <label for="stageLeft">Left</label>
-        <input type="radio" id="stageRight" name="stageSide" value="right" />
-        <label for="stageRight">Right</label>
-      </div>
-    </div>
-
-    <div class="control-group">
-      <label for="stageDepth">Stage Depth:</label>
-      <input type="number" id="stageDepth" value="8" min="0" step="0.5" />
-    </div>
-    <div class="control-group">
-      <label for="stageHeight">Stage Height:</label>
-      <input type="number" id="stageHeight" value="4" min="0" step="0.5" />
-    </div>
-  </div>
-
-  <!-- Audience -->
-  <h2>Audience</h2>
-  <div class="controls">
-    <div class="control-group">
-      <label for="audienceDepth">Audience Depth:</label>
-      <input type="number" id="audienceDepth" value="15" min="0" step="0.5" />
-    </div>
-    <div class="control-group">
-      <label for="frontRowDistance">Front Row Distance:</label>
-      <input type="number" id="frontRowDistance" value="2" min="0" step="0.5" />
-    </div>
-    <div class="control-group">
-      <label>Audience Ear Height:</label>
-      <div class="radio-group">
-        <input type="radio" id="ah1" name="audienceHeight" value="4" checked />
-        <label for="ah1">4 ft (1.22 m)</label>
-
-        <input type="radio" id="ah2" name="audienceHeight" value="5.5" />
-        <label for="ah2">5.5 ft (1.68 m)</label>
-
-        <input type="radio" id="ah3" name="audienceHeight" value="3.94" />
-        <label for="ah3">1.2 m (3.94 ft)</label>
-
-        <input type="radio" id="ah4" name="audienceHeight" value="5.25" />
-        <label for="ah4">1.6 m (5.25 ft)</label>
-      </div>
-    </div>
-  </div>
-
-  <!-- Speaker Parameters -->
-  <h2>Speaker Parameters</h2>
-  <div class="controls">
-    <div class="control-group">
-      <label for="trimHeight">Trim Height:</label>
-      <input type="number" id="trimHeight" value="5" min="0" step="0.5" />
-    </div>
-    <div class="control-group">
-      <label for="speakerPosition">Speaker Position:</label>
-      <input type="number" id="speakerPosition" value="2" min="-10" step="0.5" />
-    </div>
-    <div class="control-group">
-      <label for="speakerAngle">Speaker Angle (°):</label>
-      <input type="number" id="speakerAngle" value="0" min="-45" max="0" step="1" />
-    </div>
-  </div>
-
-  <!-- Speaker Orientation & Coverage -->
-  <h2>Speaker Orientation & Coverage</h2>
-  <div class="controls">
-    <div class="control-group">
-      <label>Speaker Orientation:</label>
-      <div class="radio-group">
-        <input type="radio" id="orientUpright" name="speakerOrientation" value="upright" checked />
-        <label for="orientUpright">Upright</label>
-        <input type="radio" id="orientSide" name="speakerOrientation" value="sideDown" />
-        <label for="orientSide">SideDown</label>
-      </div>
-    </div>
-
-    <div class="control-group">
-      <label for="speakerDispersionV">Speaker Dispersion (V°):</label>
-      <input type="number" id="speakerDispersionV" value="90" min="15" max="180" step="1" />
-    </div>
-    <div class="control-group">
-      <label for="speakerDispersionH">Speaker Dispersion (H°):</label>
-      <input type="number" id="speakerDispersionH" value="90" min="15" max="180" step="1" />
-    </div>
-
-    <div class="control-group">
-      <label>Show Lateral Coverage:</label>
-      <input type="checkbox" id="showLateralCoverage" />
-    </div>
-  </div>
-
-  <!-- Multiple Speakers & Phase -->
-  <h2>Speaker Summation</h2>
-  <div class="controls">
-    <div class="control-group">
-      <label for="numSpeakers">Number of Speakers:</label>
-      <input type="number" id="numSpeakers" value="1" min="1" max="8" step="1" />
-    </div>
-    <div class="control-group">
-      <label>Phase:</label>
-      <div class="radio-group">
-        <input type="radio" id="phaseIn" name="speakerPhase" value="in" checked />
-        <label for="phaseIn">In Phase</label>
-        <input type="radio" id="phaseRand" name="speakerPhase" value="random" />
-        <label for="phaseRand">Random Phase</label>
-      </div>
-    </div>
-  </div>
-
-  <!-- SPL Calculation Inputs -->
-  <h2>SPL Calculation Inputs</h2>
-  <div class="controls">
-    <div class="control-group">
-      <label for="speakerSensitivity">Base Sensitivity (dB @ 1m):</label>
-      <input type="number" id="speakerSensitivity" value="90" step="0.1" />
-      <small>Reference: if in meters => 1 m; if in feet => 3.28 ft. Summation modifies this.</small>
-    </div>
-    <div class="control-group">
-      <label for="speakerWattage">Speaker Wattage (W):</label>
-      <input type="number" id="speakerWattage" value="1" step="0.1" />
-    </div>
-  </div>
-
-  <div id="diagramWrapper">
-    <svg id="roomDiagram" width="600" height="400">
-      <defs>
-        <!-- Gradient for the on-axis line -->
-        <linearGradient id="greenRedGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="green"/>
-          <stop offset="100%" stop-color="red"/>
-        </linearGradient>
-      </defs>
-
-      <!-- Room, Stage, Audience, Speaker -->
-      <rect id="roomRect" x="0" y="0" width="1" height="1"></rect>
-      <rect id="stageRect" x="0" y="0" width="1" height="1"></rect>
-      <rect id="audienceRect" x="0" y="0" width="1" height="1"></rect>
-      <rect id="speakerRect" x="0" y="0" width="1" height="1"></rect>
-
-      <!-- On-axis throw line -->
-      <path id="throwPath" d="" />
-
-      <!-- Horizontal coverage line (blue) -->
-      <line id="coverageLine" x1="0" y1="0" x2="0" y2="0" />
-
-      <!-- Labels -->
-      <text id="lengthLabel" x="0" y="0"></text>
-      <text id="heightLabel" x="0" y="0"></text>
-      <text id="stageLabel" x="0" y="0"></text>
-      <text id="audienceLabel" x="0" y="0"></text>
-      <text id="speakerLabel" x="0" y="0"></text>
-    </svg>
-  </div>
-
-  <div id="throwOutput"></div>
-  <div id="splOutput"></div>
-  <div id="larOutput"></div>
-  <p id="frontRowThrowLabel">Front Row Throw: N/A</p>
-<p id="rangeRatioLabel">Range Ratio: N/A</p>
-
-
-  <script>
-    const FEET_TO_METERS = 0.3048;
-    const scaleFeet = 10;
-    const PI = 3.14;
-
-    // Hard-coded speaker shape
-    const SPEAKER_WIDTH_FT  = 1;
-    const SPEAKER_HEIGHT_FT = 3;
-
-    // Collect references
-    // Units
-    const unitsFeetRadio   = document.getElementById('unitsFeet');
-    const unitsMetersRadio = document.getElementById('unitsMeters');
-
-    // Room/Stage
-    const roomLengthInput  = document.getElementById('roomLength');
-    const roomHeightInput  = document.getElementById('roomHeight');
-    const stageDepthInput  = document.getElementById('stageDepth');
-    const stageHeightInput = document.getElementById('stageHeight');
-    const stageSideInputs  = document.querySelectorAll('input[name="stageSide"]');
-
-    // Audience
-    const audienceDepthInput   = document.getElementById('audienceDepth');
-    const frontRowInput        = document.getElementById('frontRowDistance');
-    const audienceHeightRadios = document.querySelectorAll('input[name="audienceHeight"]');
-
-    // Speaker geometry
-    const trimHeightInput    = document.getElementById('trimHeight');
-    const speakerPosInput    = document.getElementById('speakerPosition');
-    const speakerAngleInput  = document.getElementById('speakerAngle');
-
-    // Orientation
-    const speakerOrientationInputs = document.querySelectorAll('input[name="speakerOrientation"]');
-
-    // Dispersion
-    const dispVInput         = document.getElementById('speakerDispersionV');
-    const dispHInput         = document.getElementById('speakerDispersionH');
-    const showCoverageInput  = document.getElementById('showLateralCoverage');
-
-    // Summation
-    const numSpeakersInput   = document.getElementById('numSpeakers');
-    const speakerPhaseInputs = document.querySelectorAll('input[name="speakerPhase"]');
-
-    // SPL
-    const baseSensInput      = document.getElementById('speakerSensitivity');
-    const speakerWattInput   = document.getElementById('speakerWattage');
-
-    // Diagram
-    const svg                = document.getElementById('roomDiagram');
-    const roomRect           = document.getElementById('roomRect');
-    const stageRect          = document.getElementById('stageRect');
-    const audienceRect       = document.getElementById('audienceRect');
-    const speakerRect        = document.getElementById('speakerRect');
-    const throwPath          = document.getElementById('throwPath');
-    const coverageLine       = document.getElementById('coverageLine');
-
-    // Labels
-    const lengthLabel        = document.getElementById('lengthLabel');
-    const heightLabel        = document.getElementById('heightLabel');
-    const stageLabel         = document.getElementById('stageLabel');
-    const audienceLabel      = document.getElementById('audienceLabel');
-    const speakerLabel       = document.getElementById('speakerLabel');
-
-    // Outputs
-    const throwOutput        = document.getElementById('throwOutput');
-    const splOutput          = document.getElementById('splOutput');
-    const larOutput          = document.getElementById('larOutput');
-
-    // Helpers
-    function clamp(val, min, max){
-      return Math.max(min, Math.min(val, max));
-    }
-    function clampLabelPos(x, y, w, h){
-      const margin = 10;
-      const cx= Math.min(Math.max(x, margin), w - margin);
-      const cy= Math.min(Math.max(y, margin), h - margin);
-      return {x: cx, y: cy};
-    }
-    function toFeet(value){
-      return unitsFeetRadio.checked ? value : (value / FEET_TO_METERS);
-    }
-    function fromFeetToUserUnits(ft){
-      return unitsFeetRadio.checked ? ft : (ft * FEET_TO_METERS);
-    }
-
-function calculateFrontRowThrowAndRangeRatio() {
-    // Audience front row edge (stage side)
-    let frontRowX = stageSide === "left"
-        ? stageX + stageWidth + scaledFrontRowDistance // Left stage, front row starts after stage
-        : stageX - scaledFrontRowDistance;            // Right stage, front row starts before stage
-
-    // Speaker horizontal distance from audience's front row edge
-    let horizontalDistanceToFrontRow = Math.abs(speakerX - frontRowX);
-
-    // Ensure the speaker is not over the audience
-    if ((stageSide === "left" && speakerX >= frontRowX) || (stageSide === "right" && speakerX <= frontRowX)) {
-        // Speaker is over the audience; cannot calculate
-        document.getElementById("frontRowThrowLabel").textContent =
-            "Front Row Throw: Can't calculate because speaker is over audience.";
-        document.getElementById("rangeRatioLabel").textContent = "Range Ratio: N/A";
-        return; // Stop further calculations
-    }
-
-    // Calculate Front Row Throw using the Pythagorean theorem
-    let frontRowThrow = Math.sqrt(
-        Math.pow(trimHeight, 2) + Math.pow(horizontalDistanceToFrontRow, 2)
-    );
-
-    // Update Front Row Throw label
-    document.getElementById("frontRowThrowLabel").textContent =
-        `Front Row Throw: ${frontRowThrow.toFixed(2)} ${unit}`;
-
-    // Calculate Range Ratio
-    let rangeRatio = speakerThrow / frontRowThrow;
-
-    // Update Range Ratio label with contextual feedback
-    let rangeRatioText = rangeRatio >= 4
-        ? `${rangeRatio.toFixed(2)} (Line array or multiple speakers needed)`
-        : `${rangeRatio.toFixed(2)} (Point source)`;
-
-    document.getElementById("rangeRatioLabel").textContent =
-        `Range Ratio: ${rangeRatioText}`;
 }
 
-    function updateDiagram(){
-      // 1) read inputs
-      const usingFeet = unitsFeetRadio.checked;
+h1, h2 {
 
-      // Room/stage
-      let roomLenFt  = toFeet(parseFloat(roomLengthInput.value) || 0);
-      let roomHgtFt  = toFeet(parseFloat(roomHeightInput.value) || 0);
-      let stageDFt   = toFeet(parseFloat(stageDepthInput.value)|| 0);
-      let stageHFt   = toFeet(parseFloat(stageHeightInput.value)||0);
-      const stageSide= [...stageSideInputs].find(r=>r.checked)?.value || 'left';
+margin-bottom: 10px;
 
-      // Audience
-      let audDFt  = toFeet(parseFloat(audienceDepthInput.value)||0);
-      let frDistFt= toFeet(parseFloat(frontRowInput.value)||0);
-      let earHft  = parseFloat([...audienceHeightRadios].find(r=>r.checked)?.value || '4');
+}
 
-      // Speaker geometry
-      let trimFt    = toFeet(parseFloat(trimHeightInput.value)||0);
-      let sPosFt    = toFeet(parseFloat(speakerPosInput.value)||0);
-      let sAngleDeg = parseFloat(speakerAngleInput.value)||0;
+.controls {
 
-      // Orientation
-      const orientation= [...speakerOrientationInputs].find(r=>r.checked)?.value || 'upright';
+display: flex;
 
-      // Dispersion
-      let vDispDeg= parseFloat(dispVInput.value)||90; 
-      let hDispDeg= parseFloat(dispHInput.value)||90;
-      const showCov= showCoverageInput.checked;
+flex-wrap: wrap;
 
-      // Summation
-      let nSpk   = parseInt(numSpeakersInput.value)||1;
-      const phase= [...speakerPhaseInputs].find(r=>r.checked)?.value || 'in';
+gap: 1rem;
 
-      // SPL
-      let baseSens= parseFloat(baseSensInput.value)||90;
-      let spkWatt = parseFloat(speakerWattInput.value)||1;
+margin-bottom: 20px;
 
-      // 2) multiple speakers offset => modifies baseSens
-      let doublings= Math.log2(nSpk);
-      if(doublings<0) doublings=0;
-      let sumOffset= (phase==='in') ? (6*doublings) : (3*doublings);
-      baseSens+= sumOffset;
+max-width: 900px;
 
-      // 3) scale
-      const scaledRoomW= roomLenFt* scaleFeet;
-      const scaledRoomH= roomHgtFt* scaleFeet;
-      let scaledStageD= stageDFt * scaleFeet;
-      let scaledStageH= stageHFt * scaleFeet;
-      if(scaledStageD> scaledRoomW) scaledStageD= scaledRoomW;
-      if(scaledStageH> scaledRoomH) scaledStageH= scaledRoomH;
+}
 
-      // audience horizontal usage
-      let scaledAudD= audDFt* scaleFeet;
-      let scaledFront= frDistFt* scaleFeet;
-      let usedSpace= stageDFt+ frDistFt+ audDFt;
-      if(usedSpace> roomLenFt){
-        let leftover= roomLenFt-(stageDFt+ frDistFt);
-        if(leftover<0){
-          leftover= Math.max(0, roomLenFt- stageDFt);
-          scaledFront= leftover* scaleFeet;
-          scaledAudD= 0;
-        } else {
-          scaledAudD= leftover* scaleFeet;
-        }
-      }
+.control-group {
 
-      // clamp trim
-      let scaledTrim= trimFt* scaleFeet;
-      if(scaledTrim> scaledRoomH) scaledTrim= scaledRoomH;
+display: flex;
 
-      // 4) draw
-      roomRect.setAttribute('width',  scaledRoomW);
-      roomRect.setAttribute('height', scaledRoomH);
+flex-direction: column;
 
-      stageRect.setAttribute('width',  scaledStageD);
-      stageRect.setAttribute('height', scaledStageH);
+min-width: 160px;
 
-      let stageX= (stageSide==='left') ? 0 : (scaledRoomW - scaledStageD);
-      stageRect.setAttribute('x', stageX);
-      stageRect.setAttribute('y', scaledRoomH- scaledStageH);
+}
 
-      // audience
-      audienceRect.setAttribute('width', scaledAudD);
-      let scaledEarH= earHft* scaleFeet;
-      let audRectH= Math.min(scaledRoomH, scaledEarH);
-      audienceRect.setAttribute('height', audRectH);
+label {
 
-      let audX=0;
-      if(stageSide==='left'){
-        audX= stageX+ scaledStageD+ scaledFront;
-      } else {
-        audX= stageX- scaledFront- scaledAudD;
-      }
-      audienceRect.setAttribute('x', audX);
-      audienceRect.setAttribute('y', scaledRoomH- audRectH);
+margin-bottom: 0.3rem;
 
-      // speaker
-      let speakTopY= scaledRoomH - scaledTrim;
-      const scaledSW= SPEAKER_WIDTH_FT * scaleFeet;
-      const scaledSH= SPEAKER_HEIGHT_FT* scaleFeet;
-      if(speakTopY+ scaledSH> scaledRoomH){
-        speakTopY= scaledRoomH- scaledSH;
-      }
-      if(speakTopY<0) speakTopY=0;
+font-weight: bold;
 
-      let speakX=0;
-      if(stageSide==='left'){
-        // 0 => right
-        speakX= stageX+ scaledStageD+ sPosFt* scaleFeet;
-      } else {
-        // 0 => left
-        speakX= stageX- (sPosFt* scaleFeet)- scaledSW;
-      }
-      speakX= clamp(speakX, 0, scaledRoomW- scaledSW);
+}
 
-      speakerRect.setAttribute('x', speakX);
-      speakerRect.setAttribute('y', speakTopY);
-      speakerRect.setAttribute('width', scaledSW);
-      speakerRect.setAttribute('height',scaledSH);
+input[type="number"],
 
-      // speaker center
-      const spCX= speakX+ scaledSW*0.5;
-      const spCY= speakTopY+ scaledSH*0.5;
+input[type="color"],
 
-      // angle
-      let finalAngleDeg=0;
-      if(stageSide==='left'){
-        finalAngleDeg= 0 - sAngleDeg;  // negative => tilt down-right
-      } else {
-        finalAngleDeg= 180 + sAngleDeg; // negative => tilt down-left
-      }
-      speakerRect.setAttribute('transform',
-        `rotate(${finalAngleDeg}, ${spCX}, ${spCY})`
-      );
+select {
 
-      // on-axis line
-      let rad= finalAngleDeg*(PI/180);
-      let dx= Math.cos(rad), dy= Math.sin(rad);
-      let earY= scaledRoomH- (earHft* scaleFeet);
+padding: 0.3rem;
 
-      let hasEar= false;
-      let earX= spCX, earIntY= spCY;
+font-size: 1rem;
 
-      if(Math.abs(dy)>1e-6){
-        let dEar= earY- spCY;
-        let tEar= dEar/dy;
-        if(tEar>0){
-          earX= spCX+ tEar*dx;
-          earX= clamp(earX,0, scaledRoomW);
-          earIntY= earY;
-          hasEar= true;
-        }
-      }
-      let finalX= earX, finalY= earIntY;
-      if(sAngleDeg<0){
-        // downward => floor
-        const floorY= scaledRoomH;
-        let dFloor= floorY- earIntY;
-        if(dy>0 && dFloor>=0){
-          let tFloor= dFloor/dy;
-          finalX= earX+ tFloor*dx;
-          finalX= clamp(finalX,0,scaledRoomW);
-          finalY= floorY;
-        } else {
-          finalX= earX+ 50*dx;
-          finalY= earIntY+ 50*dy;
-        }
-      } else {
-        // angle=0 => horizontal => side
-        if(stageSide==='left'){
-          finalX= scaledRoomW;
-          finalY= earIntY;
-        } else {
-          finalX= 0;
-          finalY= earIntY;
-        }
-      }
-      let pathD= `M ${spCX},${spCY}`;
-      if(hasEar) pathD+= ` L ${earX},${earIntY}`;
-      pathD+= ` L ${finalX},${finalY}`;
-      throwPath.setAttribute('d', pathD);
+width: 100%;
 
-      // measure throw distance
-      let throwDistFt=0;
-      if(hasEar){
-        let distPx= Math.sqrt( (earX- spCX)**2 + (earIntY- spCY)**2 );
-        throwDistFt= distPx/ scaleFeet;
-      }
+box-sizing: border-box;
 
-      // SPL
-      let speakerSPL= baseSens; 
-      const refDist= usingFeet? 3.28: 1.0;
-      if(throwDistFt>0){
-        speakerSPL+= 10*Math.log10(spkWatt);
-        let throwUser= fromFeetToUserUnits(throwDistFt);
-        let distRatio= throwUser/ refDist;
-        if(distRatio<1e-5) distRatio=1e-5;
-        speakerSPL-= 20*Math.log10(distRatio);
-      }
+}
 
-      // display throw & spl
-      let throwUserDist= fromFeetToUserUnits(throwDistFt);
-      let distUnit= usingFeet? 'ft':'m';
-      if(throwDistFt>0){
-        throwOutput.textContent= 
-          `Speaker Throw Distance: ${throwUserDist.toFixed(2)} ${distUnit}`;
-        splOutput.textContent=
-          `SPL at audience plane: ${speakerSPL.toFixed(1)} dB`;
-      } else {
-        throwOutput.textContent= `Speaker Throw Distance: (No intersection)`;
-        splOutput.textContent=   `SPL at audience plane: (No intersection)`;
-      }
+.radio-group {
 
-      // coverage line & LAR
-      coverageLine.style.display= 'none';
-      larOutput.textContent= '';
-      if(showCov && hasEar){
-        // orientation => pick angle
-        let orientation= [...speakerOrientationInputs].find(r=>r.checked)?.value|| 'upright';
-        let coverageAngleDeg= (orientation==='upright')? vDispDeg : hDispDeg;
+display: flex;
 
-        // LAR= 2 sin( coverageAngleDeg/2 ) in radians
-        let halfAngleRad= (coverageAngleDeg*(PI/180))/2;
-        let lar= 2* Math.sin( halfAngleRad );
+flex-wrap: wrap;
 
-        larOutput.textContent=
-          `Lateral Aspect Ratio (6o6): LAR= ${lar.toFixed(3)} (using ${orientation==='upright'? 'V':'H'}°)`;
+gap: 0.5rem;
 
-        let coverageWidthFt= lar* throwDistFt;
-        let coverageWidthPx= coverageWidthFt* scaleFeet;
+align-items: center;
 
-        let covHalf= coverageWidthPx* 0.5;
-        let x1= earX - covHalf;
-        let x2= earX + covHalf;
-        coverageLine.setAttribute('x1', x1);
-        coverageLine.setAttribute('y1', earIntY);
-        coverageLine.setAttribute('x2', x2);
-        coverageLine.setAttribute('y2', earIntY);
-        coverageLine.style.display= 'block';
-      }
+}
 
-      // speaker label => show orientation too
-      // 8) place labels
-      const pad=50;
-      svg.setAttribute('width',  Math.max(scaledRoomW+ pad,300));
-      svg.setAttribute('height', Math.max(scaledRoomH+ pad,300));
 
-      {
-        let lx= scaledRoomW*0.5, ly=-5;
-        let c= clampLabelPos(lx,ly, scaledRoomW,scaledRoomH);
-        lengthLabel.textContent= `Length: ${roomLenFt.toFixed(1)} ft`;
-        lengthLabel.setAttribute('x', c.x);
-        lengthLabel.setAttribute('y', c.y);
-      }
-      {
-        let hx= 5, hy= scaledRoomH*0.5;
-        let c= clampLabelPos(hx,hy, scaledRoomW,scaledRoomH);
-        heightLabel.textContent= `Height: ${roomHgtFt.toFixed(1)} ft`;
-        heightLabel.setAttribute('x', c.x);
-        heightLabel.setAttribute('y', c.y);
-      }
-      {
-        let stX= stageX+ scaledStageD*0.5, stY= (scaledRoomH- scaledStageH)-5;
-        let c= clampLabelPos(stX, stY, scaledRoomW,scaledRoomH);
-        stageLabel.textContent= `Stage: D=${stageDFt.toFixed(1)}, H=${stageHFt.toFixed(1)}`;
-        stageLabel.setAttribute('x', c.x);
-        stageLabel.setAttribute('y', c.y);
-      }
-      {
-        let aX= audX+ scaledAudD*0.5, aY= (scaledRoomH- audRectH)-5;
-        let c= clampLabelPos(aX,aY, scaledRoomW,scaledRoomH);
-        audienceLabel.textContent= `Audience: D=${audDFt.toFixed(1)}, EarHt=${earHft.toFixed(2)} ft`;
-        audienceLabel.setAttribute('x', c.x);
-        audienceLabel.setAttribute('y', c.y);
-      }
-      {
-        let sx= spCX, sy= speakTopY-5;
-        let c= clampLabelPos(sx,sy, scaledRoomW,scaledRoomH);
-        speakerLabel.textContent=
-          `Speaker: Angle=${sAngleDeg}°, Trim=${trimFt.toFixed(1)} ft, Ori=${orientation}`;
-        speakerLabel.setAttribute('x', c.x);
-        speakerLabel.setAttribute('y', c.y);
-      }
-    }
 
-    // Attach event listeners more explicitly
-    const eventElements= [
-      unitsFeetRadio, unitsMetersRadio,
-      roomLengthInput, roomHeightInput,
-      stageDepthInput, stageHeightInput,
-      audienceDepthInput, frontRowInput,
-      trimHeightInput, speakerPosInput, speakerAngleInput,
-      dispVInput, dispHInput, showCoverageInput,
-      numSpeakersInput, baseSensInput, speakerWattInput
-    ];
+#diagramWrapper {
 
-    eventElements.forEach(el => el.addEventListener('input', updateDiagram));
+border: 1px solid #333;
 
-    // Additional radio sets
-    stageSideInputs.forEach(r => r.addEventListener('change', updateDiagram));
-    audienceHeightRadios.forEach(r => r.addEventListener('change', updateDiagram));
-    speakerOrientationInputs.forEach(r => r.addEventListener('change', updateDiagram));
-    speakerPhaseInputs.forEach(r => r.addEventListener('change', updateDiagram));
-    
-    // Calculate Front Row Throw and Range Ratio
-calculateFrontRowThrowAndRangeRatio();
+display: inline-block;
 
-    // Initialize
-    updateDiagram();
-  </script>
+padding: 10px;
+
+margin-top: 20px;
+
+}
+
+svg {
+
+background-color: #f8f8f8;
+
+}
+
+
+
+/* Basic shapes */
+
+#roomRect {
+
+fill: #ddd;
+
+stroke: #000;
+
+stroke-width: 2px;
+
+}
+
+#stageRect {
+
+fill: #a5c9ff;
+
+stroke: #333;
+
+stroke-width: 1px;
+
+}
+
+#audienceRect {
+
+fill: #ffffcc;
+
+stroke: #333;
+
+stroke-width: 1px;
+
+}
+
+#speakerRect {
+
+fill: #999;
+
+stroke: #000;
+
+stroke-width: 1px;
+
+}
+
+
+
+/* Single path for the on-axis line */
+
+#throwPath {
+
+fill: none;
+
+stroke-dasharray: 4,4;
+
+stroke-width: 2px;
+
+stroke-linecap: round;
+
+/* Just for fun: a gradient stroke from green to red */
+
+stroke: url(#greenRedGradient);
+
+}
+
+
+
+/* Horizontal coverage line (blue) */
+
+#coverageLine {
+
+stroke: blue;
+
+stroke-width: 3px;
+
+fill: none;
+
+display: none; /* Shown only if Show Lateral Coverage is checked + there's an intersection */
+
+}
+
+
+
+text {
+
+font-size: 14px;
+
+fill: #333;
+
+}
+
+
+
+/* Outputs */
+
+#throwOutput,
+
+#splOutput,
+
+#larOutput,
+
+#frontRowOutput,
+
+#rangeRatioOutput,
+
+#splFrontDiffOutput {
+
+margin-top: 1rem;
+
+font-weight: bold;
+
+color: #060;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Room Designer</h1>
+
+
+
+<!-- Unit Switch + Hide Labels -->
+
+<div class="controls">
+
+<div class="control-group">
+
+<label>Units:</label>
+
+<div class="radio-group">
+
+<input type="radio" id="unitsFeet" name="units" value="feet" checked />
+
+<label for="unitsFeet">Feet</label>
+
+<input type="radio" id="unitsMeters" name="units" value="meters" />
+
+<label for="unitsMeters">Meters</label>
+
+</div>
+
+</div>
+
+
+
+<!-- Hide Labels -->
+
+<div class="control-group">
+
+<label>Hide Labels:</label>
+
+<div class="radio-group">
+
+<input type="checkbox" id="hideLabelsCheckbox" />
+
+<label for="hideLabelsCheckbox">Hide Diagram Labels</label>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- Room & Stage Controls -->
+
+<div class="controls">
+
+<div class="control-group">
+
+<label for="roomLength">Room Length:</label>
+
+<input type="number" id="roomLength" value="40" min="0" step="1" />
+
+</div>
+
+<div class="control-group">
+
+<label for="roomHeight">Room Height:</label>
+
+<input type="number" id="roomHeight" value="14" min="0" step="1" />
+
+</div>
+
+
+
+<div class="control-group">
+
+<label>Stage Side:</label>
+
+<div class="radio-group">
+
+<input type="radio" id="stageLeft" name="stageSide" value="left" checked />
+
+<label for="stageLeft">Left</label>
+
+<input type="radio" id="stageRight" name="stageSide" value="right" />
+
+<label for="stageRight">Right</label>
+
+</div>
+
+</div>
+
+
+
+<div class="control-group">
+
+<label for="stageDepth">Stage Depth:</label>
+
+<input type="number" id="stageDepth" value="8" min="0" step="0.5" />
+
+</div>
+
+<div class="control-group">
+
+<label for="stageHeight">Stage Height:</label>
+
+<input type="number" id="stageHeight" value="4" min="0" step="0.5" />
+
+</div>
+
+</div>
+
+
+
+<!-- Audience -->
+
+<h2>Audience</h2>
+
+<div class="controls">
+
+<div class="control-group">
+
+<label for="audienceDepth">Audience Depth:</label>
+
+<input type="number" id="audienceDepth" value="15" min="0" step="0.5" />
+
+</div>
+
+<div class="control-group">
+
+<label for="frontRowDistance">Front Row Distance:</label>
+
+<input type="number" id="frontRowDistance" value="2" min="0" step="0.5" />
+
+</div>
+
+<div class="control-group">
+
+<label>Audience Ear Height:</label>
+
+<div class="radio-group">
+
+<input type="radio" id="ah1" name="audienceHeight" value="4" checked />
+
+<label for="ah1">4 ft (1.22 m)</label>
+
+
+
+<input type="radio" id="ah2" name="audienceHeight" value="5.5" />
+
+<label for="ah2">5.5 ft (1.68 m)</label>
+
+
+
+<input type="radio" id="ah3" name="audienceHeight" value="3.94" />
+
+<label for="ah3">1.2 m (3.94 ft)</label>
+
+
+
+<input type="radio" id="ah4" name="audienceHeight" value="5.25" />
+
+<label for="ah4">1.6 m (5.25 ft)</label>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- Speaker Parameters -->
+
+<h2>Speaker Parameters</h2>
+
+<div class="controls">
+
+<div class="control-group">
+
+<label for="trimHeight">Trim Height:</label>
+
+<input type="number" id="trimHeight" value="5" min="0" step="0.5" />
+
+</div>
+
+<div class="control-group">
+
+<label for="speakerPosition">Speaker Position:</label>
+
+<input type="number" id="speakerPosition" value="2" min="-10" step="0.5" />
+
+</div>
+
+<div class="control-group">
+
+<label for="speakerAngle">Speaker Angle (°):</label>
+
+<input type="number" id="speakerAngle" value="0" min="-45" max="0" step="1" />
+
+</div>
+
+</div>
+
+
+
+<!-- Speaker Orientation & Coverage -->
+
+<h2>Speaker Orientation & Coverage</h2>
+
+<div class="controls">
+
+<div class="control-group">
+
+<label>Speaker Orientation:</label>
+
+<div class="radio-group">
+
+<input type="radio" id="orientUpright" name="speakerOrientation" value="upright" checked />
+
+<label for="orientUpright">Upright</label>
+
+<input type="radio" id="orientSide" name="speakerOrientation" value="sideDown" />
+
+<label for="orientSide">SideDown</label>
+
+</div>
+
+</div>
+
+
+
+<div class="control-group">
+
+<label for="speakerDispersionV">Speaker Dispersion (V°):</label>
+
+<input type="number" id="speakerDispersionV" value="90" min="15" max="180" step="1" />
+
+</div>
+
+<div class="control-group">
+
+<label for="speakerDispersionH">Speaker Dispersion (H°):</label>
+
+<input type="number" id="speakerDispersionH" value="90" min="15" max="180" step="1" />
+
+</div>
+
+
+
+<div class="control-group">
+
+<label>Show Lateral Coverage:</label>
+
+<input type="checkbox" id="showLateralCoverage" />
+
+</div>
+
+</div>
+
+
+
+<!-- Multiple Speakers & Phase -->
+
+<h2>Speaker Summation</h2>
+
+<div class="controls">
+
+<div class="control-group">
+
+<label for="numSpeakers">Number of Speakers:</label>
+
+<input type="number" id="numSpeakers" value="1" min="1" max="8" step="1" />
+
+</div>
+
+<div class="control-group">
+
+<label>Phase:</label>
+
+<div class="radio-group">
+
+<input type="radio" id="phaseIn" name="speakerPhase" value="in" checked />
+
+<label for="phaseIn">In Phase</label>
+
+<input type="radio" id="phaseRand" name="speakerPhase" value="random" />
+
+<label for="phaseRand">Random Phase</label>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- SPL Calculation Inputs -->
+
+<h2>SPL Calculation Inputs</h2>
+
+<div class="controls">
+
+<div class="control-group">
+
+<label for="speakerSensitivity">Base Sensitivity (dB @ 1m):</label>
+
+<input type="number" id="speakerSensitivity" value="90" step="0.1" />
+
+<small>Reference: if in meters => 1 m; if in feet => 3.28 ft. Summation modifies this.</small>
+
+</div>
+
+<div class="control-group">
+
+<label for="speakerWattage">Speaker Wattage (W):</label>
+
+<input type="number" id="speakerWattage" value="1" step="0.1" />
+
+</div>
+
+</div>
+
+
+
+<div id="diagramWrapper">
+
+<svg id="roomDiagram" width="600" height="400">
+
+<defs>
+
+<!-- Gradient for the on-axis line -->
+
+<linearGradient id="greenRedGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+
+<stop offset="0%" stop-color="green"/>
+
+<stop offset="100%" stop-color="red"/>
+
+</linearGradient>
+
+</defs>
+
+
+
+<!-- Room, Stage, Audience, Speaker -->
+
+<rect id="roomRect" x="0" y="0" width="1" height="1"></rect>
+
+<rect id="stageRect" x="0" y="0" width="1" height="1"></rect>
+
+<rect id="audienceRect" x="0" y="0" width="1" height="1"></rect>
+
+
+
+<!-- NEW: Group to hold the row divider lines -->
+
+<g id="audienceRowDividers"></g>
+
+
+
+<rect id="speakerRect" x="0" y="0" width="1" height="1"></rect>
+
+
+
+<!-- On-axis throw line -->
+
+<path id="throwPath" d="" />
+
+
+
+<!-- Horizontal coverage line (blue) -->
+
+<line id="coverageLine" x1="0" y1="0" x2="0" y2="0" />
+
+
+
+<!-- Labels -->
+
+<text id="lengthLabel" x="0" y="0"></text>
+
+<text id="heightLabel" x="0" y="0"></text>
+
+<text id="stageLabel" x="0" y="0"></text>
+
+<text id="audienceLabel" x="0" y="0"></text>
+
+<text id="speakerLabel" x="0" y="0"></text>
+
+</svg>
+
+</div>
+
+
+
+<!-- Existing outputs -->
+
+<div id="throwOutput"></div>
+
+<div id="splOutput"></div>
+
+<div id="larOutput"></div>
+
+<div id="frontRowOutput"></div>
+
+<div id="rangeRatioOutput"></div>
+
+
+
+<!-- New line for SPL difference at the front row -->
+
+<div id="splFrontDiffOutput"></div>
+
+
+
+<script>
+
+const FEET_TO_METERS = 0.3048;
+
+const scaleFeet = 10;
+
+const PI = 3.14;
+
+
+
+// Our "default" speaker size in feet for UPRIGHT orientation
+
+const SPEAKER_WIDTH_FT = 1.0;
+
+const SPEAKER_HEIGHT_FT = 3.0;
+
+
+
+// For SIDE-DOWN orientation => a 1.5 × 1.5 ft square
+
+const SIDE_DOWN_SIZE_FT = 1.5;
+
+
+
+// Collect references
+
+// Units
+
+const unitsFeetRadio = document.getElementById('unitsFeet');
+
+const unitsMetersRadio = document.getElementById('unitsMeters');
+
+// Hide Labels toggle
+
+const hideLabelsCheckbox = document.getElementById('hideLabelsCheckbox');
+
+
+
+// Room/Stage
+
+const roomLengthInput = document.getElementById('roomLength');
+
+const roomHeightInput = document.getElementById('roomHeight');
+
+const stageDepthInput = document.getElementById('stageDepth');
+
+const stageHeightInput = document.getElementById('stageHeight');
+
+const stageSideInputs = document.querySelectorAll('input[name="stageSide"]');
+
+
+
+// Audience
+
+const audienceDepthInput = document.getElementById('audienceDepth');
+
+const frontRowInput = document.getElementById('frontRowDistance');
+
+const audienceHeightRadios = document.querySelectorAll('input[name="audienceHeight"]');
+
+
+
+// Speaker geometry
+
+const trimHeightInput = document.getElementById('trimHeight');
+
+const speakerPosInput = document.getElementById('speakerPosition');
+
+const speakerAngleInput = document.getElementById('speakerAngle');
+
+
+
+// Orientation
+
+const speakerOrientationInputs = document.querySelectorAll('input[name="speakerOrientation"]');
+
+
+
+// Dispersion
+
+const dispVInput = document.getElementById('speakerDispersionV');
+
+const dispHInput = document.getElementById('speakerDispersionH');
+
+const showCoverageInput = document.getElementById('showLateralCoverage');
+
+
+
+// Summation
+
+const numSpeakersInput = document.getElementById('numSpeakers');
+
+const speakerPhaseInputs = document.querySelectorAll('input[name="speakerPhase"]');
+
+
+
+// SPL
+
+const baseSensInput = document.getElementById('speakerSensitivity');
+
+const speakerWattInput = document.getElementById('speakerWattage');
+
+
+
+// Diagram
+
+const svg = document.getElementById('roomDiagram');
+
+const roomRect = document.getElementById('roomRect');
+
+const stageRect = document.getElementById('stageRect');
+
+const audienceRect = document.getElementById('audienceRect');
+
+const audienceRowGroup = document.getElementById('audienceRowDividers');
+
+const speakerRect = document.getElementById('speakerRect');
+
+const throwPath = document.getElementById('throwPath');
+
+const coverageLine = document.getElementById('coverageLine');
+
+
+
+// Labels
+
+const lengthLabel = document.getElementById('lengthLabel');
+
+const heightLabel = document.getElementById('heightLabel');
+
+const stageLabel = document.getElementById('stageLabel');
+
+const audienceLabel = document.getElementById('audienceLabel');
+
+const speakerLabel = document.getElementById('speakerLabel');
+
+
+
+// Outputs
+
+const throwOutput = document.getElementById('throwOutput');
+
+const splOutput = document.getElementById('splOutput');
+
+const larOutput = document.getElementById('larOutput');
+
+const frontRowOutput = document.getElementById('frontRowOutput');
+
+const rangeRatioOutput = document.getElementById('rangeRatioOutput');
+
+const splFrontDiffOutput = document.getElementById('splFrontDiffOutput');
+
+
+
+// Helpers
+
+function clamp(val, min, max){
+
+return Math.max(min, Math.min(val, max));
+
+}
+
+function clampLabelPos(x, y, w, h){
+
+const margin = 10;
+
+const cx= Math.min(Math.max(x, margin), w - margin);
+
+const cy= Math.min(Math.max(y, margin), h - margin);
+
+return {x: cx, y: cy};
+
+}
+
+function toFeet(value){
+
+// If in feet => no change. If in meters => convert to feet
+
+return unitsFeetRadio.checked ? value : (value / FEET_TO_METERS);
+
+}
+
+function fromFeetToUserUnits(ft){
+
+// If in feet => ft. If in meters => ft * 0.3048
+
+return unitsFeetRadio.checked ? ft : (ft * FEET_TO_METERS);
+
+}
+
+function computeSPL(distanceFt, baseSens, watt, usingFeet) {
+
+let spl = baseSens;
+
+let refDist = usingFeet ? 3.28 : 1.0;
+
+if(distanceFt > 0) {
+
+// power gain
+
+spl += 10 * Math.log10(watt);
+
+// distance attenuation
+
+let throwUserUnits = fromFeetToUserUnits(distanceFt);
+
+let distRatio = throwUserUnits / refDist;
+
+if(distRatio < 1e-5) distRatio = 1e-5;
+
+spl -= 20 * Math.log10(distRatio);
+
+} else {
+
+// no intersection => can't compute
+
+spl = 0;
+
+}
+
+return spl;
+
+}
+
+
+
+function updateDiagram(){
+
+const usingFeet = unitsFeetRadio.checked;
+
+// 1) read room/stage inputs
+
+let roomLenFt = toFeet(parseFloat(roomLengthInput.value) || 0);
+
+let roomHgtFt = toFeet(parseFloat(roomHeightInput.value) || 0);
+
+let stageDFt = toFeet(parseFloat(stageDepthInput.value)|| 0);
+
+let stageHFt = toFeet(parseFloat(stageHeightInput.value)||0);
+
+const stageSide= [...stageSideInputs].find(r=>r.checked)?.value || 'left';
+
+
+
+// 2) audience inputs
+
+let audDFt = toFeet(parseFloat(audienceDepthInput.value)||0);
+
+let frDistFt= toFeet(parseFloat(frontRowInput.value)||0);
+
+let earHft = parseFloat([...audienceHeightRadios].find(r=>r.checked)?.value || '4');
+
+
+
+// 3) speaker geometry
+
+let trimFt = toFeet(parseFloat(trimHeightInput.value)||0);
+
+let sPosFt = toFeet(parseFloat(speakerPosInput.value)||0);
+
+let sAngleDeg = parseFloat(speakerAngleInput.value)||0;
+
+const orientation= [...speakerOrientationInputs].find(r=>r.checked)?.value || 'upright';
+
+
+
+// 4) coverage
+
+let vDispDeg= parseFloat(dispVInput.value)||90;
+
+let hDispDeg= parseFloat(dispHInput.value)||90;
+
+const showCov= showCoverageInput.checked;
+
+
+
+// 5) summation & SPL
+
+let nSpk = parseInt(numSpeakersInput.value)||1;
+
+const phase= [...speakerPhaseInputs].find(r=>r.checked)?.value || 'in';
+
+let baseSens= parseFloat(baseSensInput.value)||90;
+
+let spkWatt = parseFloat(speakerWattInput.value)||1;
+
+// Summation offset
+
+let doublings= Math.log2(nSpk);
+
+if(doublings<0) doublings=0;
+
+let sumOffset= (phase==='in') ? (6*doublings) : (3*doublings);
+
+baseSens+= sumOffset;
+
+
+
+// Scale
+
+const scaledRoomW= roomLenFt* scaleFeet;
+
+const scaledRoomH= roomHgtFt* scaleFeet;
+
+let scaledStageD= stageDFt * scaleFeet;
+
+let scaledStageH= stageHFt * scaleFeet;
+
+if(scaledStageD> scaledRoomW) scaledStageD= scaledRoomW;
+
+if(scaledStageH> scaledRoomH) scaledStageH= scaledRoomH;
+
+
+
+// audience usage
+
+let scaledAudD= audDFt* scaleFeet;
+
+let scaledFront= frDistFt* scaleFeet;
+
+let usedSpace= stageDFt+ frDistFt+ audDFt;
+
+if(usedSpace> roomLenFt){
+
+let leftover= roomLenFt-(stageDFt+ frDistFt);
+
+if(leftover<0){
+
+leftover= Math.max(0, roomLenFt- stageDFt);
+
+scaledFront= leftover* scaleFeet;
+
+scaledAudD= 0;
+
+} else {
+
+scaledAudD= leftover* scaleFeet;
+
+}
+
+}
+
+
+
+// clamp trim
+
+let scaledTrim= trimFt* scaleFeet;
+
+if(scaledTrim> scaledRoomH) scaledTrim= scaledRoomH;
+
+
+
+// Draw room
+
+roomRect.setAttribute('width', scaledRoomW);
+
+roomRect.setAttribute('height', scaledRoomH);
+
+
+
+// stage
+
+stageRect.setAttribute('width', scaledStageD);
+
+stageRect.setAttribute('height', scaledStageH);
+
+let stageX= (stageSide==='left') ? 0 : (scaledRoomW - scaledStageD);
+
+stageRect.setAttribute('x', stageX);
+
+stageRect.setAttribute('y', scaledRoomH- scaledStageH);
+
+
+
+// audience
+
+audienceRect.setAttribute('width', scaledAudD);
+
+let scaledEarH= earHft* scaleFeet;
+
+let audRectH= Math.min(scaledRoomH, scaledEarH);
+
+audienceRect.setAttribute('height', audRectH);
+
+let audX=0;
+
+if(stageSide==='left'){
+
+audX= stageX+ scaledStageD+ scaledFront;
+
+} else {
+
+audX= stageX- scaledFront- scaledAudD;
+
+}
+
+audienceRect.setAttribute('x', audX);
+
+audienceRect.setAttribute('y', scaledRoomH- audRectH);
+
+
+
+// Speaker rectangle
+
+let speakTopY= scaledRoomH - scaledTrim;
+
+// Determine speaker size depending on orientation
+
+let spWidthFt, spHeightFt;
+
+if(orientation==='sideDown'){
+
+spWidthFt = SIDE_DOWN_SIZE_FT;
+
+spHeightFt= SIDE_DOWN_SIZE_FT;
+
+} else {
+
+spWidthFt = SPEAKER_WIDTH_FT;
+
+spHeightFt = SPEAKER_HEIGHT_FT;
+
+}
+
+const scaledSW= spWidthFt* scaleFeet;
+
+const scaledSH= spHeightFt* scaleFeet;
+
+
+
+if(speakTopY+ scaledSH> scaledRoomH){
+
+speakTopY= scaledRoomH- scaledSH;
+
+}
+
+if(speakTopY<0) speakTopY=0;
+
+
+
+let speakX=0;
+
+if(stageSide==='left'){
+
+// 0 => "immediately after stage"
+
+speakX= stageX+ scaledStageD+ sPosFt* scaleFeet;
+
+} else {
+
+// stage is on right side
+
+speakX= stageX- (sPosFt* scaleFeet)- scaledSW;
+
+}
+
+speakX= clamp(speakX, 0, scaledRoomW- scaledSW);
+
+
+
+speakerRect.setAttribute('x', speakX);
+
+speakerRect.setAttribute('y', speakTopY);
+
+speakerRect.setAttribute('width', scaledSW);
+
+speakerRect.setAttribute('height',scaledSH);
+
+
+
+// speaker center
+
+const spCX= speakX+ scaledSW*0.5;
+
+const spCY= speakTopY+ scaledSH*0.5;
+
+
+
+// angle
+
+let finalAngleDeg=0;
+
+if(stageSide==='left'){
+
+finalAngleDeg= 0 - sAngleDeg; // negative => tilt down-right
+
+} else {
+
+finalAngleDeg= 180 + sAngleDeg; // negative => tilt down-left
+
+}
+
+speakerRect.setAttribute('transform', `rotate(${finalAngleDeg}, ${spCX}, ${spCY})`);
+
+
+
+// On-axis line
+
+let rad= finalAngleDeg*(PI/180);
+
+let dx= Math.cos(rad), dy= Math.sin(rad);
+
+let earY= scaledRoomH- (earHft* scaleFeet);
+
+
+
+let hasEar= false;
+
+let earX= spCX, earIntY= spCY;
+
+
+
+if(Math.abs(dy)>1e-6){
+
+let dEar= earY- spCY;
+
+let tEar= dEar/dy;
+
+if(tEar>0){
+
+earX= spCX+ tEar*dx;
+
+earX= clamp(earX,0, scaledRoomW);
+
+earIntY= earY;
+
+hasEar= true;
+
+}
+
+}
+
+let finalX= earX, finalY= earIntY;
+
+if(sAngleDeg<0){
+
+// downward => might hit floor
+
+const floorY= scaledRoomH;
+
+let dFloor= floorY- earIntY;
+
+if(dy>0 && dFloor>=0){
+
+let tFloor= dFloor/dy;
+
+finalX= earX+ tFloor*dx;
+
+finalX= clamp(finalX,0,scaledRoomW);
+
+finalY= floorY;
+
+} else {
+
+finalX= earX+ 50*dx;
+
+finalY= earIntY+ 50*dy;
+
+}
+
+} else {
+
+// angle=0 => horizontal => side
+
+if(stageSide==='left'){
+
+finalX= scaledRoomW;
+
+finalY= earIntY;
+
+} else {
+
+finalX= 0;
+
+finalY= earIntY;
+
+}
+
+}
+
+let pathD= `M ${spCX},${spCY}`;
+
+if(hasEar) pathD+= ` L ${earX},${earIntY}`;
+
+pathD+= ` L ${finalX},${finalY}`;
+
+throwPath.setAttribute('d', pathD);
+
+
+
+// measure main throw distance
+
+let throwDistFt=0;
+
+if(hasEar){
+
+let distPx= Math.sqrt( (earX- spCX)**2 + (earIntY- spCY)**2 );
+
+throwDistFt= distPx/ scaleFeet;
+
+}
+
+
+
+// SPL at audience plane
+
+let speakerSPL= computeSPL(throwDistFt, baseSens, spkWatt, usingFeet);
+
+
+
+// Display main throw & SPL
+
+let throwUserDist= fromFeetToUserUnits(throwDistFt);
+
+let distUnit= usingFeet? 'ft':'m';
+
+if(throwDistFt>0){
+
+throwOutput.textContent= `Speaker Throw Distance: ${throwUserDist.toFixed(2)} ${distUnit}`;
+
+splOutput.textContent = `SPL at audience plane: ${speakerSPL.toFixed(1)} dB`;
+
+} else {
+
+throwOutput.textContent = `Speaker Throw Distance: (No intersection)`;
+
+splOutput.textContent = `SPL at audience plane: (No intersection)`;
+
+}
+
+
+
+// Coverage line & LAR
+
+coverageLine.style.display= 'none';
+
+larOutput.textContent= '';
+
+if(showCov && hasEar){
+
+let coverageAngleDeg= (orientation==='upright')? vDispDeg : hDispDeg;
+
+let halfAngleRad= (coverageAngleDeg*(PI/180))/2;
+
+let lar= 2* Math.sin(halfAngleRad);
+
+
+
+larOutput.textContent=
+
+`Lateral Aspect Ratio (6o6): LAR= ${lar.toFixed(3)} (using ${(orientation==='upright' ? 'V':'H')}°)`;
+
+
+
+let coverageWidthFt= lar* throwDistFt;
+
+let coverageWidthPx= coverageWidthFt* scaleFeet;
+
+
+
+let covHalf= coverageWidthPx* 0.5;
+
+let x1= earX - covHalf;
+
+let x2= earX + covHalf;
+
+coverageLine.setAttribute('x1', x1);
+
+coverageLine.setAttribute('y1', earIntY);
+
+coverageLine.setAttribute('x2', x2);
+
+coverageLine.setAttribute('y2', earIntY);
+
+coverageLine.style.display= 'block';
+
+}
+
+
+
+// === Front Row Throw & Range Ratio ===
+
+frontRowOutput.textContent = '';
+
+rangeRatioOutput.textContent= '';
+
+splFrontDiffOutput.textContent= '';
+
+
+
+// Identify front row corner
+
+let frontRowX_px = (stageSide==='left')? audX : (audX + scaledAudD);
+
+let frontRowY_px = (scaledRoomH - audRectH);
+
+
+
+let spCX_ft = spCX / scaleFeet;
+
+let spCY_ft = spCY / scaleFeet;
+
+let frontRowX_ft = frontRowX_px / scaleFeet;
+
+let frontRowY_ft = frontRowY_px / scaleFeet;
+
+
+
+let canCalcFrontRow = false;
+
+if(stageSide==='left' && spCX < frontRowX_px) {
+
+canCalcFrontRow = true;
+
+}
+
+if(stageSide==='right' && spCX > frontRowX_px) {
+
+canCalcFrontRow = true;
+
+}
+
+
+
+if(!canCalcFrontRow){
+
+frontRowOutput.textContent = "Front Row Throw: Can't calculate because speaker is over audience.";
+
+} else {
+
+let horizDist = Math.abs(spCX_ft - frontRowX_ft);
+
+let vertDist = Math.abs(trimFt - earHft);
+
+let frontRowThrowDistFt = Math.sqrt(horizDist*horizDist + vertDist*vertDist);
+
+
+
+let frUserDist = fromFeetToUserUnits(frontRowThrowDistFt);
+
+frontRowOutput.textContent =
+
+`Front Row Throw: ${frUserDist.toFixed(2)} ${distUnit}`;
+
+
+
+if(throwDistFt>0 && frontRowThrowDistFt>0){
+
+let rangeRatio = throwDistFt / frontRowThrowDistFt;
+
+let rrText = rangeRatio.toFixed(2);
+
+if(rangeRatio >= 4){
+
+rangeRatioOutput.textContent =
+
+`Range Ratio: ${rrText} (Line array or multiple speakers needed)`;
+
+} else {
+
+rangeRatioOutput.textContent =
+
+`Range Ratio: ${rrText} (Point source)`;
+
+}
+
+
+
+// SPL difference front row
+
+let speakerSPL_Front = computeSPL(frontRowThrowDistFt, baseSens, spkWatt, usingFeet);
+
+let diff = speakerSPL_Front - speakerSPL;
+
+let absDiff = Math.abs(diff).toFixed(1);
+
+if(diff > 0){
+
+splFrontDiffOutput.textContent = `${absDiff} dB louder at front row`;
+
+} else if(diff < 0){
+
+splFrontDiffOutput.textContent = `${absDiff} dB quieter at front row`;
+
+} else {
+
+splFrontDiffOutput.textContent = `0 dB difference at front row`;
+
+}
+
+}
+
+}
+
+
+
+// === Audience Row Dividers ===
+
+// We'll remove any existing lines, then re-draw them.
+
+while(audienceRowGroup.firstChild){
+
+audienceRowGroup.removeChild(audienceRowGroup.firstChild);
+
+}
+
+// We draw vertical lines at 5 ft (if using feet) or 1.524 m (if using meters)
+
+let rowSpacingFt = usingFeet ? 5.0 : (1.524 / FEET_TO_METERS); // 1.524 m => 1.524 / 0.3048 => 5 ft, but let's be explicit
+
+// Actually 1.524 m is exactly 5 ft, so we can just do:
+
+if(!usingFeet){
+
+rowSpacingFt = 1.524 / FEET_TO_METERS * 3.28; // but let's keep it simpler
+
+// Actually simpler: rowSpacingFt = 1.524 / 0.3048 => 5, ironically the same
+
+// If you want a different spacing, adjust accordingly.
+
+rowSpacingFt = 1.524 / 0.3048; // which is 5
+
+}
+
+
+
+// The total width (in ft) for the audience is audDFt
+
+// We'll start from the front row X (on left or right) and move in increments
+
+let audienceLeftX_px = audX;
+
+let audienceRightX_px = audX + scaledAudD;
+
+let audienceTopY_px = scaledRoomH - audRectH;
+
+let audienceBtmY_px = scaledRoomH;
+
+
+
+// We want vertical lines inside that region, every rowSpacingFt
+
+// We'll do it from front row edge to the "back" of the audience.
+
+let lineCount=0;
+
+
+
+if(scaledAudD> 0){
+
+if(stageSide==='left'){
+
+// left => frontRow is at audienceLeftX_px
+
+// We'll go from audienceLeftX_px + rowSpacingPx*N => up to audienceRightX_px
+
+const rowSpacingPx= rowSpacingFt* scaleFeet;
+
+let curX= audienceLeftX_px + rowSpacingPx;
+
+while(curX < audienceRightX_px - 1){
+
+const lineEl= document.createElementNS('http://www.w3.org/2000/svg','line');
+
+lineEl.setAttribute('x1', curX);
+
+lineEl.setAttribute('y1', audienceTopY_px);
+
+lineEl.setAttribute('x2', curX);
+
+lineEl.setAttribute('y2', audienceBtmY_px);
+
+lineEl.setAttribute('stroke', '#999');
+
+lineEl.setAttribute('stroke-width','1');
+
+audienceRowGroup.appendChild(lineEl);
+
+curX+= rowSpacingPx;
+
+lineCount++;
+
+if(lineCount> 100) break;
+
+}
+
+} else {
+
+// stage right => front row is at audienceRightX_px
+
+// We'll go from audienceRightX_px - rowSpacingPx*N => down to audienceLeftX_px
+
+const rowSpacingPx= rowSpacingFt* scaleFeet;
+
+let curX= audienceRightX_px - rowSpacingPx;
+
+while(curX > audienceLeftX_px + 1){
+
+const lineEl= document.createElementNS('http://www.w3.org/2000/svg','line');
+
+lineEl.setAttribute('x1', curX);
+
+lineEl.setAttribute('y1', audienceTopY_px);
+
+lineEl.setAttribute('x2', curX);
+
+lineEl.setAttribute('y2', audienceBtmY_px);
+
+lineEl.setAttribute('stroke', '#999');
+
+lineEl.setAttribute('stroke-width','1');
+
+audienceRowGroup.appendChild(lineEl);
+
+curX-= rowSpacingPx;
+
+lineCount++;
+
+if(lineCount> 100) break;
+
+}
+
+}
+
+}
+
+// === End Row Dividers
+
+
+
+// === Hide or Show Labels ===
+
+const hideLabels = hideLabelsCheckbox.checked;
+
+const labelElems = [lengthLabel, heightLabel, stageLabel, audienceLabel, speakerLabel];
+
+labelElems.forEach(lbl => lbl.style.display = hideLabels ? 'none' : 'block');
+
+
+
+// Place labels only if they're visible
+
+const pad=50;
+
+svg.setAttribute('width', Math.max(scaledRoomW+ pad,300));
+
+svg.setAttribute('height', Math.max(scaledRoomH+ pad,300));
+
+
+
+if(!hideLabels){
+
+// room length
+
+{
+
+let lx= scaledRoomW*0.5, ly=-5;
+
+let c= clampLabelPos(lx,ly, scaledRoomW,scaledRoomH);
+
+lengthLabel.textContent= `Length: ${roomLenFt.toFixed(1)} ft`;
+
+lengthLabel.setAttribute('x', c.x);
+
+lengthLabel.setAttribute('y', c.y);
+
+}
+
+// room height
+
+{
+
+let hx= 5, hy= scaledRoomH*0.5;
+
+let c= clampLabelPos(hx,hy, scaledRoomW,scaledRoomH);
+
+heightLabel.textContent= `Height: ${roomHgtFt.toFixed(1)} ft`;
+
+heightLabel.setAttribute('x', c.x);
+
+heightLabel.setAttribute('y', c.y);
+
+}
+
+// stage
+
+{
+
+let stX= stageX+ scaledStageD*0.5, stY= (scaledRoomH- scaledStageH)-5;
+
+let c= clampLabelPos(stX, stY, scaledRoomW,scaledRoomH);
+
+stageLabel.textContent= `Stage: D=${stageDFt.toFixed(1)}, H=${stageHFt.toFixed(1)}`;
+
+stageLabel.setAttribute('x', c.x);
+
+stageLabel.setAttribute('y', c.y);
+
+}
+
+// audience
+
+{
+
+let aX= audX+ scaledAudD*0.5, aY= (scaledRoomH- audRectH)-5;
+
+let c= clampLabelPos(aX,aY, scaledRoomW,scaledRoomH);
+
+audienceLabel.textContent= `Audience: D=${audDFt.toFixed(1)}, EarHt=${earHft.toFixed(2)} ft`;
+
+audienceLabel.setAttribute('x', c.x);
+
+audienceLabel.setAttribute('y', c.y);
+
+}
+
+// speaker
+
+{
+
+let sx= spCX, sy= speakTopY-5;
+
+let c= clampLabelPos(sx, sy, scaledRoomW, scaledRoomH);
+
+speakerLabel.textContent=
+
+`Speaker: Angle=${sAngleDeg}°, Trim=${trimFt.toFixed(1)} ft, Ori=${orientation}`;
+
+speakerLabel.setAttribute('x', c.x);
+
+speakerLabel.setAttribute('y', c.y);
+
+}
+
+}
+
+}
+
+
+
+// Attach event listeners
+
+const eventElements= [
+
+unitsFeetRadio, unitsMetersRadio,
+
+roomLengthInput, roomHeightInput,
+
+stageDepthInput, stageHeightInput,
+
+audienceDepthInput, frontRowInput,
+
+trimHeightInput, speakerPosInput, speakerAngleInput,
+
+dispVInput, dispHInput, showCoverageInput,
+
+numSpeakersInput, baseSensInput, speakerWattInput,
+
+hideLabelsCheckbox
+
+];
+
+eventElements.forEach(el => el.addEventListener('input', updateDiagram));
+
+
+
+stageSideInputs.forEach(r => r.addEventListener('change', updateDiagram));
+
+audienceHeightRadios.forEach(r => r.addEventListener('change', updateDiagram));
+
+speakerOrientationInputs.forEach(r => r.addEventListener('change', updateDiagram));
+
+speakerPhaseInputs.forEach(r => r.addEventListener('change', updateDiagram));
+
+
+
+// Initialize
+
+updateDiagram();
+
+</script>
+
 </body>
-</html>
 
+</html>
