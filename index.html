@@ -4,507 +4,750 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 	<title></title>
 	<meta name="generator" content="LibreOffice 7.1.5.2 (MacOSX)"/>
-	<meta name="created" content="2025-01-09T23:19:12.056056015"/>
-	<meta name="changed" content="2025-01-10T22:11:02.324315054"/>
+	<meta name="created" content="00:00:00"/>
+	<meta name="changed" content="2025-01-09T23:58:31.644410239"/>
+	<meta name="created" content="00:00:00">
+	<meta name="changed" content="00:00:00">
+	<meta name="created" content="00:00:00">
+	<meta name="changed" content="00:00:00">
+	<style type="text/css">
+		@page { margin: 0.79in }
+		p { margin-bottom: 0.1in; background: transparent; line-height: 115% }
+		pre { background: transparent; font-family: "Liberation Mono", monospace }
+	</style>
 </head>
-<body lang="en-US" dir="ltr"><p>&lt;!DOCTYPE html&gt;</p>
-<p>&lt;html lang=&quot;en&quot;&gt;</p>
-<p>&lt;head&gt;</p>
-<p>  &lt;meta charset=&quot;UTF-8&quot; /&gt;</p>
-<p>  &lt;title&gt;Room Designer&lt;/title&gt;</p>
-<p>  &lt;style&gt;</p>
-<p>    /* ... existing CSS ... */</p>
-<p>  &lt;/style&gt;</p>
-<p>&lt;/head&gt;</p>
-<p>&lt;body&gt;</p>
-<p>  &lt;h1&gt;Room Designer&lt;/h1&gt;</p>
-<p><br/>
-<br/>
+<body lang="en-US" dir="ltr"><pre>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;title&gt;Room Designer&lt;/title&gt;
+  &lt;style&gt;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1, h2 {
+      margin-bottom: 10px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 20px;
+      max-width: 900px;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      min-width: 160px;
+    }
+    label {
+      margin-bottom: 0.3rem;
+      font-weight: bold;
+    }
+    input[type=&quot;number&quot;],
+    input[type=&quot;color&quot;],
+    select {
+      padding: 0.3rem;
+      font-size: 1rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
 
-</p>
-<p>  &lt;!-- Unit Switch + Hide Labels --&gt;</p>
-<p>  &lt;div class=&quot;controls&quot;&gt;</p>
-<p>    &lt;!-- ... existing unit and label controls ... --&gt;</p>
-<p>  &lt;/div&gt;</p>
-<p><br/>
-<br/>
+    #diagramWrapper {
+      border: 1px solid #333;
+      display: inline-block;
+      padding: 10px;
+      margin-top: 20px;
+    }
+    svg {
+      background-color: #f8f8f8;
+    }
 
-</p>
-<p>  &lt;!-- Room &amp; Stage Controls --&gt;</p>
-<p>  &lt;div class=&quot;controls&quot;&gt;</p>
-<p>    &lt;!-- ... existing room and stage inputs ... --&gt;</p>
-<p>  &lt;/div&gt;</p>
-<p><br/>
-<br/>
+    /* Basic shapes */
+    #roomRect {
+      fill: #ddd;
+      stroke: #000;
+      stroke-width: 2px;
+    }
+    #stageRect {
+      fill: #a5c9ff;
+      stroke: #333;
+      stroke-width: 1px;
+    }
+    #audienceRect {
+      fill: #ffffcc;
+      stroke: #333;
+      stroke-width: 1px;
+    }
+    #speakerRect {
+      fill: #999;
+      stroke: #000;
+      stroke-width: 1px;
+    }
 
-</p>
-<p>  &lt;!-- Audience --&gt;</p>
-<p>  &lt;h2&gt;Audience&lt;/h2&gt;</p>
-<p>  &lt;div class=&quot;controls&quot;&gt;</p>
-<p>    &lt;!-- ... existing audience inputs ... --&gt;</p>
-<p>  &lt;/div&gt;</p>
-<p><br/>
-<br/>
+    /* Single path for the on-axis line (gradient for fun) */
+    #throwPath {
+      fill: none;
+      stroke-dasharray: 4,4;
+      stroke-width: 2px;
+      stroke-linecap: round;
+      stroke: url(#greenRedGradient);
+    }
 
-</p>
-<p>  &lt;!-- Speaker Parameters --&gt;</p>
-<p>  &lt;h2&gt;Speaker Parameters&lt;/h2&gt;</p>
-<p>  &lt;div class=&quot;controls&quot;&gt;</p>
-<p>    &lt;!-- ... existing speaker parameters ... --&gt;</p>
-<p>  &lt;/div&gt;</p>
-<p><br/>
-<br/>
+    /* Horizontal coverage line (blue) */
+    #coverageLine {
+      stroke: blue;
+      stroke-width: 3px;
+      fill: none;
+      display: none; /* We show this only if Show Lateral Coverage is checked + we have an intersection */
+    }
 
-</p>
-<p>  &lt;!-- Speaker Orientation &amp; Coverage --&gt;</p>
-<p>  &lt;h2&gt;Speaker Orientation &amp; Coverage&lt;/h2&gt;</p>
-<p>  &lt;div class=&quot;controls&quot;&gt;</p>
-<p>    &lt;!-- ... existing orientation &amp; coverage controls ...
---&gt;</p>
-<p>  &lt;/div&gt;</p>
-<p><br/>
-<br/>
+    text {
+      font-size: 14px;
+      fill: #333;
+    }
 
-</p>
-<p>  &lt;!-- Multiple Speakers &amp; Phase --&gt;</p>
-<p>  &lt;h2&gt;Speaker Summation&lt;/h2&gt;</p>
-<p>  &lt;div class=&quot;controls&quot;&gt;</p>
-<p>    &lt;!-- ... existing summation inputs ... --&gt;</p>
-<p>  &lt;/div&gt;</p>
-<p><br/>
-<br/>
+    #throwOutput, #splOutput, #larOutput {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #060;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Room Designer
+  &lt;/h1&gt;
 
-</p>
-<p>  &lt;!-- SPL Calculation Inputs --&gt;</p>
-<p>  &lt;h2&gt;SPL Calculation Inputs&lt;/h2&gt;</p>
-<p>  &lt;div class=&quot;controls&quot;&gt;</p>
-<p>    &lt;!-- ... existing SPL inputs ... --&gt;</p>
-<p>  &lt;/div&gt;</p>
-<p><br/>
-<br/>
+  &lt;!-- Unit Switch --&gt;
+  &lt;div class=&quot;controls&quot;&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label&gt;Units:&lt;/label&gt;
+      &lt;div class=&quot;radio-group&quot;&gt;
+        &lt;input type=&quot;radio&quot; id=&quot;unitsFeet&quot; name=&quot;units&quot; value=&quot;feet&quot; checked /&gt;
+        &lt;label for=&quot;unitsFeet&quot;&gt;Feet&lt;/label&gt;
+        &lt;input type=&quot;radio&quot; id=&quot;unitsMeters&quot; name=&quot;units&quot; value=&quot;meters&quot; /&gt;
+        &lt;label for=&quot;unitsMeters&quot;&gt;Meters&lt;/label&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
 
-</p>
-<p>  &lt;!-- Insert Snippet A here: Speaker Options Headings and
-Toggles --&gt;</p>
-<p>  &lt;!-- Begin Snippet A --&gt;</p>
-<p>  &lt;h2&gt;Speaker Options&lt;/h2&gt;</p>
-<p>  &lt;div class=&quot;controls&quot;&gt;</p>
-<p>    &lt;div class=&quot;control-group&quot;&gt;</p>
-<p>      &lt;label&gt;</p>
-<p>        &lt;input type=&quot;checkbox&quot;
-id=&quot;addPointSourceSpeaker&quot; checked /&gt;</p>
-<p>        Add Point Source Speaker</p>
-<p>      &lt;/label&gt;</p>
-<p>    &lt;/div&gt;</p>
-<p>  &lt;/div&gt;</p>
-<p><br/>
-<br/>
+  &lt;!-- Room &amp; Stage Controls --&gt;
+  &lt;div class=&quot;controls&quot;&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;roomLength&quot;&gt;Room Length:&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;roomLength&quot; value=&quot;40&quot; min=&quot;0&quot; step=&quot;1&quot; /&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;roomHeight&quot;&gt;Room Height:&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;roomHeight&quot; value=&quot;14&quot; min=&quot;0&quot; step=&quot;1&quot; /&gt;
+    &lt;/div&gt;
 
-</p>
-<p>  &lt;h2&gt;Line Array Options&lt;/h2&gt;</p>
-<p>  &lt;div class=&quot;controls&quot;&gt;</p>
-<p>    &lt;div class=&quot;control-group&quot;&gt;</p>
-<p>      &lt;label&gt;</p>
-<p>        &lt;input type=&quot;checkbox&quot; id=&quot;addLineArray&quot;
-/&gt;</p>
-<p>        Add LineArray</p>
-<p>      &lt;/label&gt;</p>
-<p>    &lt;/div&gt;</p>
-<p>    &lt;div class=&quot;control-group&quot;&gt;</p>
-<p>      &lt;label&gt;</p>
-<p>        &lt;input type=&quot;checkbox&quot; id=&quot;showCoveragePath&quot;
-/&gt;</p>
-<p>        Show coverage path</p>
-<p>      &lt;/label&gt;</p>
-<p>    &lt;/div&gt;</p>
-<p>    &lt;div class=&quot;control-group&quot;&gt;</p>
-<p>      &lt;label&gt;</p>
-<p>        Whole Array Tilt (°):</p>
-<p>        &lt;input type=&quot;number&quot; id=&quot;wholeArrayTilt&quot;
-value=&quot;0&quot; min=&quot;-180&quot; max=&quot;180&quot;
-step=&quot;0.5&quot; /&gt;</p>
-<p>      &lt;/label&gt;</p>
-<p>    &lt;/div&gt;</p>
-<p>    &lt;div class=&quot;control-group&quot;&gt;</p>
-<p>      &lt;label&gt;</p>
-<p>        &lt;input type=&quot;checkbox&quot; id=&quot;flipScene&quot;
-/&gt;</p>
-<p>        Flip Scene</p>
-<p>      &lt;/label&gt;</p>
-<p>    &lt;/div&gt;</p>
-<p>    &lt;!-- Add additional controls for splay angles if needed --&gt;</p>
-<p>  &lt;/div&gt;</p>
-<p>  &lt;!-- End Snippet A --&gt;</p>
-<p><br/>
-<br/>
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label&gt;Stage Side:&lt;/label&gt;
+      &lt;div class=&quot;radio-group&quot;&gt;
+        &lt;input type=&quot;radio&quot; id=&quot;stageLeft&quot; name=&quot;stageSide&quot; value=&quot;left&quot; checked /&gt;
+        &lt;label for=&quot;stageLeft&quot;&gt;Left&lt;/label&gt;
+        &lt;input type=&quot;radio&quot; id=&quot;stageRight&quot; name=&quot;stageSide&quot; value=&quot;right&quot; /&gt;
+        &lt;label for=&quot;stageRight&quot;&gt;Right&lt;/label&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
 
-</p>
-<p>  &lt;div id=&quot;diagramWrapper&quot;&gt;</p>
-<p>    &lt;!-- Existing SVG with RoomDesigner content --&gt;</p>
-<p>    &lt;svg id=&quot;roomDiagram&quot; width=&quot;600&quot;
-height=&quot;400&quot;&gt;</p>
-<p>      &lt;defs&gt;</p>
-<p>        &lt;!-- ... existing gradient definitions ... --&gt;</p>
-<p>      &lt;/defs&gt;</p>
-<p><br/>
-<br/>
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;stageDepth&quot;&gt;Stage Depth:&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;stageDepth&quot; value=&quot;8&quot; min=&quot;0&quot; step=&quot;0.5&quot; /&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;stageHeight&quot;&gt;Stage Height:&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;stageHeight&quot; value=&quot;4&quot; min=&quot;0&quot; step=&quot;0.5&quot; /&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
 
-</p>
-<p>      &lt;!-- Room, Stage, Audience, Speaker --&gt;</p>
-<p>      &lt;rect id=&quot;roomRect&quot; x=&quot;0&quot; y=&quot;0&quot;
-width=&quot;1&quot; height=&quot;1&quot;&gt;&lt;/rect&gt;</p>
-<p>      &lt;rect id=&quot;stageRect&quot; x=&quot;0&quot; y=&quot;0&quot;
-width=&quot;1&quot; height=&quot;1&quot;&gt;&lt;/rect&gt;</p>
-<p>      &lt;rect id=&quot;audienceRect&quot; x=&quot;0&quot; y=&quot;0&quot;
-width=&quot;1&quot; height=&quot;1&quot;&gt;&lt;/rect&gt;</p>
-<p><br/>
-<br/>
+  &lt;!-- Audience --&gt;
+  &lt;h2&gt;Audience&lt;/h2&gt;
+  &lt;div class=&quot;controls&quot;&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;audienceDepth&quot;&gt;Audience Depth:&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;audienceDepth&quot; value=&quot;15&quot; min=&quot;0&quot; step=&quot;0.5&quot; /&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;frontRowDistance&quot;&gt;Front Row Distance:&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;frontRowDistance&quot; value=&quot;2&quot; min=&quot;0&quot; step=&quot;0.5&quot; /&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label&gt;Audience Ear Height:&lt;/label&gt;
+      &lt;div class=&quot;radio-group&quot;&gt;
+        &lt;input type=&quot;radio&quot; id=&quot;ah1&quot; name=&quot;audienceHeight&quot; value=&quot;4&quot; checked /&gt;
+        &lt;label for=&quot;ah1&quot;&gt;4 ft (1.22 m)&lt;/label&gt;
 
-</p>
-<p>      &lt;!-- NEW: Group to hold the row divider lines --&gt;</p>
-<p>      &lt;g id=&quot;audienceRowDividers&quot;&gt;&lt;/g&gt;</p>
-<p><br/>
-<br/>
+        &lt;input type=&quot;radio&quot; id=&quot;ah2&quot; name=&quot;audienceHeight&quot; value=&quot;5.5&quot; /&gt;
+        &lt;label for=&quot;ah2&quot;&gt;5.5 ft (1.68 m)&lt;/label&gt;
 
-</p>
-<p>      &lt;rect id=&quot;speakerRect&quot; x=&quot;0&quot; y=&quot;0&quot;
-width=&quot;1&quot; height=&quot;1&quot;&gt;&lt;/rect&gt;</p>
-<p><br/>
-<br/>
+        &lt;input type=&quot;radio&quot; id=&quot;ah3&quot; name=&quot;audienceHeight&quot; value=&quot;3.94&quot; /&gt;
+        &lt;label for=&quot;ah3&quot;&gt;1.2 m (3.94 ft)&lt;/label&gt;
 
-</p>
-<p>      &lt;!-- On-axis throw line --&gt;</p>
-<p>      &lt;path id=&quot;throwPath&quot; d=&quot;&quot; /&gt;</p>
-<p><br/>
-<br/>
+        &lt;input type=&quot;radio&quot; id=&quot;ah4&quot; name=&quot;audienceHeight&quot; value=&quot;5.25&quot; /&gt;
+        &lt;label for=&quot;ah4&quot;&gt;1.6 m (5.25 ft)&lt;/label&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
 
-</p>
-<p>      &lt;!-- Horizontal coverage line (blue) --&gt;</p>
-<p>      &lt;line id=&quot;coverageLine&quot; x1=&quot;0&quot; y1=&quot;0&quot;
-x2=&quot;0&quot; y2=&quot;0&quot; /&gt;</p>
-<p><br/>
-<br/>
+  &lt;!-- Speaker Parameters --&gt;
+  &lt;h2&gt;Speaker Parameters&lt;/h2&gt;
+  &lt;div class=&quot;controls&quot;&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;trimHeight&quot;&gt;Trim Height:&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;trimHeight&quot; value=&quot;5&quot; min=&quot;0&quot; step=&quot;0.5&quot; /&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;speakerPosition&quot;&gt;Speaker Position:&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;speakerPosition&quot; value=&quot;2&quot; min=&quot;-10&quot; step=&quot;0.5&quot; /&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;speakerAngle&quot;&gt;Speaker Angle (°):&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;speakerAngle&quot; value=&quot;0&quot; min=&quot;-45&quot; max=&quot;0&quot; step=&quot;1&quot; /&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
 
-</p>
-<p>      &lt;!-- Labels --&gt;</p>
-<p>      &lt;text id=&quot;lengthLabel&quot; x=&quot;0&quot;
-y=&quot;0&quot;&gt;&lt;/text&gt;</p>
-<p>      &lt;text id=&quot;heightLabel&quot; x=&quot;0&quot;
-y=&quot;0&quot;&gt;&lt;/text&gt;</p>
-<p>      &lt;text id=&quot;stageLabel&quot; x=&quot;0&quot;
-y=&quot;0&quot;&gt;&lt;/text&gt;</p>
-<p>      &lt;text id=&quot;audienceLabel&quot; x=&quot;0&quot;
-y=&quot;0&quot;&gt;&lt;/text&gt;</p>
-<p>      &lt;text id=&quot;speakerLabel&quot; x=&quot;0&quot;
-y=&quot;0&quot;&gt;&lt;/text&gt;</p>
-<p><br/>
-<br/>
+  &lt;!-- Speaker Orientation &amp; Coverage --&gt;
+  &lt;h2&gt;Speaker Orientation &amp; Coverage&lt;/h2&gt;
+  &lt;div class=&quot;controls&quot;&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label&gt;Speaker Orientation:&lt;/label&gt;
+      &lt;div class=&quot;radio-group&quot;&gt;
+        &lt;input type=&quot;radio&quot; id=&quot;orientUpright&quot; name=&quot;speakerOrientation&quot; value=&quot;upright&quot; checked /&gt;
+        &lt;label for=&quot;orientUpright&quot;&gt;Upright&lt;/label&gt;
+        &lt;input type=&quot;radio&quot; id=&quot;orientSide&quot; name=&quot;speakerOrientation&quot; value=&quot;sideDown&quot; /&gt;
+        &lt;label for=&quot;orientSide&quot;&gt;SideDown&lt;/label&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
 
-</p>
-<p>      &lt;!-- Insert Snippet B here: SVG Group for Line Array --&gt;</p>
-<p>      &lt;!-- Begin Snippet B --&gt;</p>
-<p>      &lt;g id=&quot;lineArrayGroup&quot;&gt;&lt;/g&gt;</p>
-<p>      &lt;!-- End Snippet B --&gt;</p>
-<p><br/>
-<br/>
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;speakerDispersionV&quot;&gt;Speaker Dispersion (V°):&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;speakerDispersionV&quot; value=&quot;90&quot; min=&quot;15&quot; max=&quot;180&quot; step=&quot;1&quot; /&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;speakerDispersionH&quot;&gt;Speaker Dispersion (H°):&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;speakerDispersionH&quot; value=&quot;90&quot; min=&quot;15&quot; max=&quot;180&quot; step=&quot;1&quot; /&gt;
+    &lt;/div&gt;
 
-</p>
-<p>    &lt;/svg&gt;</p>
-<p>  &lt;/div&gt;</p>
-<p><br/>
-<br/>
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label&gt;Show Lateral Coverage:&lt;/label&gt;
+      &lt;input type=&quot;checkbox&quot; id=&quot;showLateralCoverage&quot; /&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
 
-</p>
-<p>  &lt;!-- Existing outputs --&gt;</p>
-<p>  &lt;div id=&quot;throwOutput&quot;&gt;&lt;/div&gt;</p>
-<p>  &lt;div id=&quot;splOutput&quot;&gt;&lt;/div&gt;</p>
-<p>  &lt;div id=&quot;larOutput&quot;&gt;&lt;/div&gt;</p>
-<p>  &lt;div id=&quot;frontRowOutput&quot;&gt;&lt;/div&gt;</p>
-<p>  &lt;div id=&quot;rangeRatioOutput&quot;&gt;&lt;/div&gt;</p>
-<p>  &lt;div id=&quot;splFrontDiffOutput&quot;&gt;&lt;/div&gt;</p>
-<p><br/>
-<br/>
+  &lt;!-- Multiple Speakers &amp; Phase --&gt;
+  &lt;h2&gt;Speaker Summation&lt;/h2&gt;
+  &lt;div class=&quot;controls&quot;&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;numSpeakers&quot;&gt;Number of Speakers:&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;numSpeakers&quot; value=&quot;1&quot; min=&quot;1&quot; max=&quot;8&quot; step=&quot;1&quot; /&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label&gt;Phase:&lt;/label&gt;
+      &lt;div class=&quot;radio-group&quot;&gt;
+        &lt;input type=&quot;radio&quot; id=&quot;phaseIn&quot; name=&quot;speakerPhase&quot; value=&quot;in&quot; checked /&gt;
+        &lt;label for=&quot;phaseIn&quot;&gt;In Phase&lt;/label&gt;
+        &lt;input type=&quot;radio&quot; id=&quot;phaseRand&quot; name=&quot;speakerPhase&quot; value=&quot;random&quot; /&gt;
+        &lt;label for=&quot;phaseRand&quot;&gt;Random Phase&lt;/label&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
 
-</p>
-<p>  &lt;script&gt;</p>
-<p>    const FEET_TO_METERS = 0.3048;</p>
-<p>    const scaleFeet = 10;</p>
-<p>    const PI = 3.14;</p>
-<p><br/>
-<br/>
+  &lt;!-- SPL Calculation Inputs --&gt;
+  &lt;h2&gt;SPL Calculation Inputs&lt;/h2&gt;
+  &lt;div class=&quot;controls&quot;&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;speakerSensitivity&quot;&gt;Base Sensitivity (dB @ 1m):&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;speakerSensitivity&quot; value=&quot;90&quot; step=&quot;0.1&quot; /&gt;
+      &lt;small&gt;Reference: if in meters =&gt; 1 m; if in feet =&gt; 3.28 ft. Summation modifies this.&lt;/small&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;control-group&quot;&gt;
+      &lt;label for=&quot;speakerWattage&quot;&gt;Speaker Wattage (W):&lt;/label&gt;
+      &lt;input type=&quot;number&quot; id=&quot;speakerWattage&quot; value=&quot;1&quot; step=&quot;0.1&quot; /&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
 
-</p>
-<p>    // ... existing constants and element references ...</p>
-<p><br/>
-<br/>
+  &lt;div id=&quot;diagramWrapper&quot;&gt;
+    &lt;svg id=&quot;roomDiagram&quot; width=&quot;600&quot; height=&quot;400&quot;&gt;
+      &lt;defs&gt;
+        &lt;!-- Gradient for the on-axis line --&gt;
+        &lt;linearGradient id=&quot;greenRedGradient&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;100%&quot; y2=&quot;0%&quot;&gt;
+          &lt;stop offset=&quot;0%&quot; stop-color=&quot;green&quot;/&gt;
+          &lt;stop offset=&quot;100%&quot; stop-color=&quot;red&quot;/&gt;
+        &lt;/linearGradient&gt;
+      &lt;/defs&gt;
 
-</p>
-<p>    // Insert Snippet C here: New element references for speaker
-options</p>
-<p>    // Begin Snippet C</p>
-<p>    const addPointSourceCheckbox =
-document.getElementById('addPointSourceSpeaker');</p>
-<p>    const addLineArrayCheckbox   =
-document.getElementById('addLineArray');</p>
-<p>    const showCoverageCheckbox   =
-document.getElementById('showCoveragePath');</p>
-<p>    const wholeArrayTiltInput    =
-document.getElementById('wholeArrayTilt');</p>
-<p>    const flipSceneCheckbox      =
-document.getElementById('flipScene');</p>
-<p>    const lineArrayGroup         =
-document.getElementById('lineArrayGroup');</p>
-<p>    // Also add references for any new splay controls if needed.</p>
-<p>    // End Snippet C</p>
-<p><br/>
-<br/>
+      &lt;!-- Room, Stage, Audience, Speaker --&gt;
+      &lt;rect id=&quot;roomRect&quot; x=&quot;0&quot; y=&quot;0&quot; width=&quot;1&quot; height=&quot;1&quot;&gt;&lt;/rect&gt;
+      &lt;rect id=&quot;stageRect&quot; x=&quot;0&quot; y=&quot;0&quot; width=&quot;1&quot; height=&quot;1&quot;&gt;&lt;/rect&gt;
+      &lt;rect id=&quot;audienceRect&quot; x=&quot;0&quot; y=&quot;0&quot; width=&quot;1&quot; height=&quot;1&quot;&gt;&lt;/rect&gt;
+      &lt;rect id=&quot;speakerRect&quot; x=&quot;0&quot; y=&quot;0&quot; width=&quot;1&quot; height=&quot;1&quot;&gt;&lt;/rect&gt;
 
-</p>
-<p>    // ... existing helper functions and variable declarations ...</p>
-<p><br/>
-<br/>
+      &lt;!-- On-axis throw line --&gt;
+      &lt;path id=&quot;throwPath&quot; d=&quot;&quot; /&gt;
 
-</p>
-<p>    // Insert Snippet D here: Preserve original updateDiagram
-function</p>
-<p>    // Begin Snippet D</p>
-<p>    const originalUpdateDiagram = updateDiagram;</p>
-<p>    // End Snippet D</p>
-<p><br/>
-<br/>
+      &lt;!-- Horizontal coverage line (blue) --&gt;
+      &lt;line id=&quot;coverageLine&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;0&quot; /&gt;
 
-</p>
-<p>    // Insert Snippet E here: Combined Update Diagram Function</p>
-<p>    // Begin Snippet E</p>
-<p>    function combinedUpdateDiagram() {</p>
-<p>      // Call original update logic</p>
-<p>      originalUpdateDiagram();</p>
-<p><br/>
-<br/>
+      &lt;!-- Labels --&gt;
+      &lt;text id=&quot;lengthLabel&quot; x=&quot;0&quot; y=&quot;0&quot;&gt;&lt;/text&gt;
+      &lt;text id=&quot;heightLabel&quot; x=&quot;0&quot; y=&quot;0&quot;&gt;&lt;/text&gt;
+      &lt;text id=&quot;stageLabel&quot; x=&quot;0&quot; y=&quot;0&quot;&gt;&lt;/text&gt;
+      &lt;text id=&quot;audienceLabel&quot; x=&quot;0&quot; y=&quot;0&quot;&gt;&lt;/text&gt;
+      &lt;text id=&quot;speakerLabel&quot; x=&quot;0&quot; y=&quot;0&quot;&gt;&lt;/text&gt;
+    &lt;/svg&gt;
+  &lt;/div&gt;
 
-</p>
-<p>      // Handle point source speaker logic</p>
-<p>      if(addPointSourceCheckbox.checked) {</p>
-<p>        // Original speaker logic already handled</p>
-<p>      } else {</p>
-<p>        // Optionally hide point speaker visuals</p>
-<p>      }</p>
-<p><br/>
-<br/>
+  &lt;div id=&quot;throwOutput&quot;&gt;&lt;/div&gt;
+  &lt;div id=&quot;splOutput&quot;&gt;&lt;/div&gt;
+  &lt;div id=&quot;larOutput&quot;&gt;&lt;/div&gt;
+&lt;p id=&quot;frontRowThrowLabel&quot;&gt;Front Row Throw: N/A&lt;/p&gt;
+&lt;p id=&quot;rangeRatioLabel&quot;&gt;Range Ratio: N/A&lt;/p&gt;
 
-</p>
-<p>      // Handle line array logic</p>
-<p>      if(addLineArrayCheckbox.checked) {</p>
-<p>        // Retrieve and parse line array parameters, similar to
-previous snippet guidelines.</p>
-<p>        let trimHeightFt =
-parseFloat(document.getElementById('trimHeight').value) || 0;</p>
-<p>        let speakerPosFt =
-parseFloat(document.getElementById('speakerPosition').value) || 0;</p>
-<p>        let arraySize    =
-parseInt(document.getElementById('lineArraySize').value) || 1;</p>
-<p>        arraySize = Math.max(1, Math.min(arraySize, 6));</p>
-<p>        // ... update splay controls, gather other parameters ...</p>
-<p><br/>
-<br/>
+  &lt;script&gt;
+    const FEET_TO_METERS = 0.3048;
+    const scaleFeet = 10;
+    const PI = 3.14;
 
-</p>
-<p>        const showCoverage = showCoverageCheckbox.checked;</p>
-<p>        const wholeArrayTiltDeg =
-parseFloat(wholeArrayTiltInput.value) || 0;</p>
-<p>        const flip = flipSceneCheckbox.checked;</p>
-<p><br/>
-<br/>
+    // Hard-coded speaker shape
+    const SPEAKER_WIDTH_FT  = 1;
+    const SPEAKER_HEIGHT_FT = 3;
 
-</p>
-<p>       // ... existing code in combinedUpdateDiagram ...</p>
-<p><br/>
-<br/>
+    // Collect references
+    // Units
+    const unitsFeetRadio   = document.getElementById('unitsFeet');
+    const unitsMetersRadio = document.getElementById('unitsMeters');
 
-</p>
-<p>if(addLineArrayCheckbox.checked) {</p>
-<p>  // Retrieve and parse line array parameters</p>
-<p>  let trimHeightFt =
-parseFloat(document.getElementById('trimHeight').value) || 0;</p>
-<p>  let speakerPosFt =
-parseFloat(document.getElementById('speakerPosition').value) || 0;</p>
-<p>  let arraySize    =
-parseInt(document.getElementById('lineArraySize').value) || 1;</p>
-<p>  arraySize = Math.max(1, Math.min(arraySize, 6));</p>
-<p>  // (Here, you would update the visibility of splay controls
-based on arraySize, if applicable.)</p>
-<p><br/>
-<br/>
+    // Room/Stage
+    const roomLengthInput  = document.getElementById('roomLength');
+    const roomHeightInput  = document.getElementById('roomHeight');
+    const stageDepthInput  = document.getElementById('stageDepth');
+    const stageHeightInput = document.getElementById('stageHeight');
+    const stageSideInputs  = document.querySelectorAll('input[name=&quot;stageSide&quot;]');
 
-</p>
-<p>  const showCoverage = showCoverageCheckbox.checked;</p>
-<p>  const wholeArrayTiltDeg = parseFloat(wholeArrayTiltInput.value)
-|| 0;</p>
-<p>  const flip = flipSceneCheckbox.checked;</p>
-<p><br/>
-<br/>
+    // Audience
+    const audienceDepthInput   = document.getElementById('audienceDepth');
+    const frontRowInput        = document.getElementById('frontRowDistance');
+    const audienceHeightRadios = document.querySelectorAll('input[name=&quot;audienceHeight&quot;]');
 
-</p>
-<p>  // --- Begin Adapted Line Array Drawing Logic ---</p>
-<p>  // Define constants for speaker dimensions (you might have these
-defined globally already)</p>
-<p>  const scaleFeetLocal = 10;  // same as your global scaleFeet, if
-not accessible</p>
-<p>  const SPEAKER_WIDTH = 2;    // example dimension</p>
-<p>  const LEFT_HEIGHT = 0.6;</p>
-<p>  const RIGHT_HEIGHT = 1.0;</p>
-<p><br/>
-<br/>
+    // Speaker geometry
+    const trimHeightInput    = document.getElementById('trimHeight');
+    const speakerPosInput    = document.getElementById('speakerPosition');
+    const speakerAngleInput  = document.getElementById('speakerAngle');
 
-</p>
-<p>  const widthPx       = SPEAKER_WIDTH * scaleFeetLocal;</p>
-<p>  const leftHeightPx  = LEFT_HEIGHT * scaleFeetLocal;</p>
-<p>  const rightHeightPx = RIGHT_HEIGHT * scaleFeetLocal;</p>
-<p><br/>
-<br/>
+    // Orientation
+    const speakerOrientationInputs = document.querySelectorAll('input[name=&quot;speakerOrientation&quot;]');
 
-</p>
-<p>  const axisX = speakerPosFt * scaleFeetLocal + widthPx;</p>
-<p>  let currentX = speakerPosFt * scaleFeetLocal;</p>
-<p><br/>
-<br/>
+    // Dispersion
+    const dispVInput         = document.getElementById('speakerDispersionV');
+    const dispHInput         = document.getElementById('speakerDispersionH');
+    const showCoverageInput  = document.getElementById('showLateralCoverage');
 
-</p>
-<p>  let svgHeight  = parseFloat(svg.getAttribute('height'));</p>
-<p>  let initialY   = svgHeight - (trimHeightFt * scaleFeetLocal) -
-rightHeightPx;</p>
-<p>  let currentY   = initialY;</p>
-<p><br/>
-<br/>
+    // Summation
+    const numSpeakersInput   = document.getElementById('numSpeakers');
+    const speakerPhaseInputs = document.querySelectorAll('input[name=&quot;speakerPhase&quot;]');
 
-</p>
-<p>  let cumulativeAngle = 0;</p>
-<p><br/>
-<br/>
+    // SPL
+    const baseSensInput      = document.getElementById('speakerSensitivity');
+    const speakerWattInput   = document.getElementById('speakerWattage');
 
-</p>
-<p>  // Clear any existing line array elements first</p>
-<p>  while(lineArrayGroup.firstChild) {</p>
-<p>    lineArrayGroup.removeChild(lineArrayGroup.firstChild);</p>
-<p>  }</p>
-<p><br/>
-<br/>
+    // Diagram
+    const svg                = document.getElementById('roomDiagram');
+    const roomRect           = document.getElementById('roomRect');
+    const stageRect          = document.getElementById('stageRect');
+    const audienceRect       = document.getElementById('audienceRect');
+    const speakerRect        = document.getElementById('speakerRect');
+    const throwPath          = document.getElementById('throwPath');
+    const coverageLine       = document.getElementById('coverageLine');
 
-</p>
-<p>  for (let i = 0; i &lt; arraySize; i++) {</p>
-<p>    let polygon =
-document.createElementNS('http://www.w3.org/2000/svg', 'polygon');</p>
-<p>    let points = [</p>
-<p>      `${currentX},${currentY}`,</p>
-<p>      `${currentX + widthPx},${currentY}`,</p>
-<p>      `${currentX + widthPx},${currentY + rightHeightPx}`,</p>
-<p>      `${currentX},${currentY + leftHeightPx}`</p>
-<p>    ].join(&quot; &quot;);</p>
-<p>    polygon.setAttribute('points', points);</p>
-<p>    polygon.setAttribute('fill', '#999');</p>
-<p>    polygon.setAttribute('stroke', '#000');</p>
-<p>    lineArrayGroup.appendChild(polygon);</p>
-<p><br/>
-<br/>
+    // Labels
+    const lengthLabel        = document.getElementById('lengthLabel');
+    const heightLabel        = document.getElementById('heightLabel');
+    const stageLabel         = document.getElementById('stageLabel');
+    const audienceLabel      = document.getElementById('audienceLabel');
+    const speakerLabel       = document.getElementById('speakerLabel');
 
-</p>
-<p>    if (showCoverage) {</p>
-<p>      let centerX = currentX + widthPx;</p>
-<p>      let centerY = currentY + rightHeightPx / 2;</p>
-<p>      const coverageLength = 50;</p>
-<p>      let orientation = cumulativeAngle;</p>
-<p>      let endX = centerX + coverageLength * Math.cos(orientation);</p>
-<p>      let endY = centerY + coverageLength * Math.sin(orientation);</p>
-<p><br/>
-<br/>
+    // Outputs
+    const throwOutput        = document.getElementById('throwOutput');
+    const splOutput          = document.getElementById('splOutput');
+    const larOutput          = document.getElementById('larOutput');
 
-</p>
-<p>      let line =
-document.createElementNS('http://www.w3.org/2000/svg', 'line');</p>
-<p>      line.setAttribute('x1', centerX);</p>
-<p>      line.setAttribute('y1', centerY);</p>
-<p>      line.setAttribute('x2', endX);</p>
-<p>      line.setAttribute('y2', endY);</p>
-<p>      line.setAttribute('stroke', 'red');</p>
-<p>      line.setAttribute('stroke-width', '2');</p>
-<p>      lineArrayGroup.appendChild(line);</p>
-<p>    }</p>
-<p><br/>
-<br/>
+    // Helpers
+    function clamp(val, min, max){
+      return Math.max(min, Math.min(val, max));
+    }
+    function clampLabelPos(x, y, w, h){
+      const margin = 10;
+      const cx= Math.min(Math.max(x, margin), w - margin);
+      const cy= Math.min(Math.max(y, margin), h - margin);
+      return {x: cx, y: cy};
+    }
+    function toFeet(value){
+      return unitsFeetRadio.checked ? value : (value / FEET_TO_METERS);
+    }
+    function fromFeetToUserUnits(ft){
+      return unitsFeetRadio.checked ? ft : (ft * FEET_TO_METERS);
+    }
 
-</p>
-<p>    if (i &lt; arraySize - 1) {</p>
-<p>      let angleDeg = parseFloat(splayInputs[i].value) || 0;</p>
-<p>      let angle = angleDeg * (Math.PI / 180);</p>
-<p>      cumulativeAngle += angle;</p>
-<p>      let horizShift = Math.tan(angle) * rightHeightPx;</p>
-<p>      currentX -= horizShift;</p>
-<p>      currentY += rightHeightPx;</p>
-<p>    }</p>
-<p>  }</p>
-<p><br/>
-<br/>
+    function updateDiagram(){
+      // 1) read inputs
+      const usingFeet = unitsFeetRadio.checked;
 
-</p>
-<p>  // Build transformation string for line array</p>
-<p>  let transforms = [];</p>
-<p>  transforms.push(`rotate(${wholeArrayTiltDeg}, ${axisX},
-${initialY + rightHeightPx/2})`);</p>
-<p>  if(flip) {</p>
-<p>    transforms.push(`translate(${2*axisX},0) scale(-1,1)`);</p>
-<p>  }</p>
-<p>  lineArrayGroup.setAttribute('transform', transforms.join(' '));</p>
-<p>  // --- End Adapted Line Array Drawing Logic ---</p>
-<p><br/>
-<br/>
+      // Room/stage
+      let roomLenFt  = toFeet(parseFloat(roomLengthInput.value) || 0);
+      let roomHgtFt  = toFeet(parseFloat(roomHeightInput.value) || 0);
+      let stageDFt   = toFeet(parseFloat(stageDepthInput.value)|| 0);
+      let stageHFt   = toFeet(parseFloat(stageHeightInput.value)||0);
+      const stageSide= [...stageSideInputs].find(r=&gt;r.checked)?.value || 'left';
 
-</p>
-<p>} else {</p>
-<p>  // Clear line array visuals if not in use</p>
-<p>  while(lineArrayGroup.firstChild) {</p>
-<p>    lineArrayGroup.removeChild(lineArrayGroup.firstChild);</p>
-<p>  }</p>
-<p>}</p>
-<p>      } else {</p>
-<p>        // Clear line array visuals if not in use</p>
-<p>        while(lineArrayGroup.firstChild) {</p>
-<p>          lineArrayGroup.removeChild(lineArrayGroup.firstChild);</p>
-<p>        }</p>
-<p>      }</p>
-<p>    }</p>
-<p>    // End Snippet E</p>
-<p><br/>
-<br/>
+      // Audience
+    let audDFt  = toFeet(parseFloat(audienceDepthInput.value)||0);
+      let frDistFt= toFeet(parseFloat(frontRowInput.value)||0);
+      let earHft  = parseFloat([...audienceHeightRadios].find(r=&gt;r.checked)?.value || '4');
 
-</p>
-<p>    // Assign combined update function</p>
-<p>    updateDiagram = combinedUpdateDiagram;</p>
-<p><br/>
-<br/>
+      // Speaker geometry
+      let trimFt    = toFeet(parseFloat(trimHeightInput.value)||0);
+      let sPosFt    = toFeet(parseFloat(speakerPosInput.value)||0);
+      let sAngleDeg = parseFloat(speakerAngleInput.value)||0;
 
-</p>
-<p>    // Insert Snippet F here: Attaching new event listeners</p>
-<p>    // Begin Snippet F</p>
-<p>    const inputs = [</p>
-<p>      // List any original inputs if necessary,</p>
-<p>      addPointSourceCheckbox,</p>
-<p>      addLineArrayCheckbox,</p>
-<p>      showCoverageCheckbox,</p>
-<p>      wholeArrayTiltInput,</p>
-<p>      flipSceneCheckbox</p>
-<p>      // Include references to splayInputs if needed.</p>
-<p>    ];</p>
-<p>    inputs.forEach(el =&gt; el.addEventListener('input',
-updateDiagram));</p>
-<p>    // End Snippet F</p>
-<p><br/>
-<br/>
+      // Orientation
+      const orientation= [...speakerOrientationInputs].find(r=&gt;r.checked)?.value || 'upright';
 
-</p>
-<p>    // Initialize with the combined update function</p>
-<p>    updateDiagram();</p>
-<p>  &lt;/script&gt;</p>
-<p>&lt;/body&gt;</p>
-<p>&lt;/html&gt;</p>
+      // Dispersion
+      let vDispDeg= parseFloat(dispVInput.value)||90; 
+      let hDispDeg= parseFloat(dispHInput.value)||90;
+      const showCov= showCoverageInput.checked;
+
+      // Summation
+      let nSpk   = parseInt(numSpeakersInput.value)||1;
+      const phase= [...speakerPhaseInputs].find(r=&gt;r.checked)?.value || 'in';
+
+      // SPL
+      let baseSens= parseFloat(baseSensInput.value)||90;
+      let spkWatt = parseFloat(speakerWattInput.value)||1;
+
+      // 2) multiple speakers offset =&gt; modifies baseSens
+      let doublings= Math.log2(nSpk);
+      if(doublings&lt;0) doublings=0;
+      let sumOffset= (phase==='in') ? (6*doublings) : (3*doublings);
+      baseSens+= sumOffset;
+
+      // 3) scale
+      const scaledRoomW= roomLenFt* scaleFeet;
+      const scaledRoomH= roomHgtFt* scaleFeet;
+      let scaledStageD= stageDFt * scaleFeet;
+      let scaledStageH= stageHFt * scaleFeet;
+      if(scaledStageD&gt; scaledRoomW) scaledStageD= scaledRoomW;
+      if(scaledStageH&gt; scaledRoomH) scaledStageH= scaledRoomH;
+
+      // audience horizontal usage
+      let scaledAudD= audDFt* scaleFeet;
+      let scaledFront= frDistFt* scaleFeet;
+      let usedSpace= stageDFt+ frDistFt+ audDFt;
+      if(usedSpace&gt; roomLenFt){
+        let leftover= roomLenFt-(stageDFt+ frDistFt);
+        if(leftover&lt;0){
+          leftover= Math.max(0, roomLenFt- stageDFt);
+          scaledFront= leftover* scaleFeet;
+          scaledAudD= 0;
+        } else {
+          scaledAudD= leftover* scaleFeet;
+        }
+      }
+
+      // clamp trim
+      let scaledTrim= trimFt* scaleFeet;
+      if(scaledTrim&gt; scaledRoomH) scaledTrim= scaledRoomH;
+
+      // 4) draw
+      roomRect.setAttribute('width',  scaledRoomW);
+      roomRect.setAttribute('height', scaledRoomH);
+
+      stageRect.setAttribute('width',  scaledStageD);
+      stageRect.setAttribute('height', scaledStageH);
+
+      let stageX= (stageSide==='left') ? 0 : (scaledRoomW - scaledStageD);
+      stageRect.setAttribute('x', stageX);
+      stageRect.setAttribute('y', scaledRoomH- scaledStageH);
+
+      // audience
+      audienceRect.setAttribute('width', scaledAudD);
+      let scaledEarH= earHft* scaleFeet;
+      let audRectH= Math.min(scaledRoomH, scaledEarH);
+      audienceRect.setAttribute('height', audRectH);
+
+      let audX=0;
+      if(stageSide==='left'){
+        audX= stageX+ scaledStageD+ scaledFront;
+      } else {
+        audX= stageX- scaledFront- scaledAudD;
+      }
+      audienceRect.setAttribute('x', audX);
+      audienceRect.setAttribute('y', scaledRoomH- audRectH);
+
+      // speaker
+      let speakTopY= scaledRoomH - scaledTrim;
+      const scaledSW= SPEAKER_WIDTH_FT * scaleFeet;
+      const scaledSH= SPEAKER_HEIGHT_FT* scaleFeet;
+      if(speakTopY+ scaledSH&gt; scaledRoomH){
+        speakTopY= scaledRoomH- scaledSH;
+      }
+      if(speakTopY&lt;0) speakTopY=0;
+
+      let speakX=0;
+      if(stageSide==='left'){
+        // 0 =&gt; right
+        speakX= stageX+ scaledStageD+ sPosFt* scaleFeet;
+      } else {
+        // 0 =&gt; left
+        speakX= stageX- (sPosFt* scaleFeet)- scaledSW;
+      }
+      speakX= clamp(speakX, 0, scaledRoomW- scaledSW);
+
+      speakerRect.setAttribute('x', speakX);
+      speakerRect.setAttribute('y', speakTopY);
+      speakerRect.setAttribute('width', scaledSW);
+      speakerRect.setAttribute('height',scaledSH);
+
+      // speaker center
+      const spCX= speakX+ scaledSW*0.5;
+      const spCY= speakTopY+ scaledSH*0.5;
+
+      // angle
+      let finalAngleDeg=0;
+      if(stageSide==='left'){
+        finalAngleDeg= 0 - sAngleDeg;  // negative =&gt; tilt down-right
+      } else {
+        finalAngleDeg= 180 + sAngleDeg; // negative =&gt; tilt down-left
+      }
+      speakerRect.setAttribute('transform',
+        `rotate(${finalAngleDeg}, ${spCX}, ${spCY})`
+      );
+
+      // on-axis line
+      let rad= finalAngleDeg*(PI/180);
+      let dx= Math.cos(rad), dy= Math.sin(rad);
+      let earY= scaledRoomH- (earHft* scaleFeet);
+
+      let hasEar= false;
+      let earX= spCX, earIntY= spCY;
+
+      if(Math.abs(dy)&gt;1e-6){
+        let dEar= earY- spCY;
+        let tEar= dEar/dy;
+        if(tEar&gt;0){
+          earX= spCX+ tEar*dx;
+          earX= clamp(earX,0, scaledRoomW);
+          earIntY= earY;
+          hasEar= true;
+        }
+      }
+      let finalX= earX, finalY= earIntY;
+      if(sAngleDeg&lt;0){
+        // downward =&gt; floor
+        const floorY= scaledRoomH;
+        let dFloor= floorY- earIntY;
+        if(dy&gt;0 &amp;&amp; dFloor&gt;=0){
+          let tFloor= dFloor/dy;
+          finalX= earX+ tFloor*dx;
+          finalX= clamp(finalX,0,scaledRoomW);
+          finalY= floorY;
+        } else {
+          finalX= earX+ 50*dx;
+          finalY= earIntY+ 50*dy;
+        }
+      } else {
+        // angle=0 =&gt; horizontal =&gt; side
+        if(stageSide==='left'){
+          finalX= scaledRoomW;
+          finalY= earIntY;
+        } else {
+          finalX= 0;
+          finalY= earIntY;
+        }
+      }
+      let pathD= `M ${spCX},${spCY}`;
+      if(hasEar) pathD+= ` L ${earX},${earIntY}`;
+      pathD+= ` L ${finalX},${finalY}`;
+      throwPath.setAttribute('d', pathD);
+
+      // measure throw distance
+      let throwDistFt=0;
+      if(hasEar){
+        let distPx= Math.sqrt( (earX- spCX)**2 + (earIntY- spCY)**2 );
+        throwDistFt= distPx/ scaleFeet;
+      }
+
+      // SPL
+      let speakerSPL= baseSens; 
+      const refDist= usingFeet? 3.28: 1.0;
+      if(throwDistFt&gt;0){
+        speakerSPL+= 10*Math.log10(spkWatt);
+        let throwUser= fromFeetToUserUnits(throwDistFt);
+        let distRatio= throwUser/ refDist;
+        if(distRatio&lt;1e-5) distRatio=1e-5;
+        speakerSPL-= 20*Math.log10(distRatio);
+      }
+
+      // display throw &amp; spl
+      let throwUserDist= fromFeetToUserUnits(throwDistFt);
+      let distUnit= usingFeet? 'ft':'m';
+      if(throwDistFt&gt;0){
+        throwOutput.textContent= 
+          `Speaker Throw Distance: ${throwUserDist.toFixed(2)} ${distUnit}`;
+        splOutput.textContent=
+          `SPL at audience plane: ${speakerSPL.toFixed(1)} dB`;
+      } else {
+        throwOutput.textContent= `Speaker Throw Distance: (No intersection)`;
+        splOutput.textContent=   `SPL at audience plane: (No intersection)`;
+      }
+
+      // coverage line &amp; LAR
+      coverageLine.style.display= 'none';
+      larOutput.textContent= '';
+      if(showCov &amp;&amp; hasEar){
+        // orientation =&gt; pick angle
+        let orientation= [...speakerOrientationInputs].find(r=&gt;r.checked)?.value|| 'upright';
+        let coverageAngleDeg= (orientation==='upright')? vDispDeg : hDispDeg;
+
+        // LAR= 2 sin( coverageAngleDeg/2 ) in radians
+        let halfAngleRad= (coverageAngleDeg*(PI/180))/2;
+        let lar= 2* Math.sin( halfAngleRad );
+
+        larOutput.textContent=
+          `Lateral Aspect Ratio (6o6): LAR= ${lar.toFixed(3)} (using ${orientation==='upright'? 'V':'H'}°)`;
+
+        let coverageWidthFt= lar* throwDistFt;
+        let coverageWidthPx= coverageWidthFt* scaleFeet;
+
+        let covHalf= coverageWidthPx* 0.5;
+        let x1= earX - covHalf;
+        let x2= earX + covHalf;
+        coverageLine.setAttribute('x1', x1);
+        coverageLine.setAttribute('y1', earIntY);
+        coverageLine.setAttribute('x2', x2);
+        coverageLine.setAttribute('y2', earIntY);
+        coverageLine.style.display= 'block';
+      }
+
+      // speaker label =&gt; show orientation too
+      // 8) place labels
+      const pad=50;
+      svg.setAttribute('width',  Math.max(scaledRoomW+ pad,300));
+      svg.setAttribute('height', Math.max(scaledRoomH+ pad,300));
+
+      {
+        let lx= scaledRoomW*0.5, ly=-5;
+        let c= clampLabelPos(lx,ly, scaledRoomW,scaledRoomH);
+        lengthLabel.textContent= `Length: ${roomLenFt.toFixed(1)} ft`;
+        lengthLabel.setAttribute('x', c.x);
+        lengthLabel.setAttribute('y', c.y);
+      }
+      {
+        let hx= 5, hy= scaledRoomH*0.5;
+        let c= clampLabelPos(hx,hy, scaledRoomW,scaledRoomH);
+        heightLabel.textContent= `Height: ${roomHgtFt.toFixed(1)} ft`;
+        heightLabel.setAttribute('x', c.x);
+        heightLabel.setAttribute('y', c.y);
+      }
+      {
+        let stX= stageX+ scaledStageD*0.5, stY= (scaledRoomH- scaledStageH)-5;
+        let c= clampLabelPos(stX, stY, scaledRoomW,scaledRoomH);
+        stageLabel.textContent= `Stage: D=${stageDFt.toFixed(1)}, H=${stageHFt.toFixed(1)}`;
+        stageLabel.setAttribute('x', c.x);
+        stageLabel.setAttribute('y', c.y);
+      }
+      {
+        let aX= audX+ scaledAudD*0.5, aY= (scaledRoomH- audRectH)-5;
+        let c= clampLabelPos(aX,aY, scaledRoomW,scaledRoomH);
+        audienceLabel.textContent= `Audience: D=${audDFt.toFixed(1)}, EarHt=${earHft.toFixed(2)} ft`;
+        audienceLabel.setAttribute('x', c.x);
+        audienceLabel.setAttribute('y', c.y);
+      }
+      {
+        let sx= spCX, sy= speakTopY-5;
+        let c= clampLabelPos(sx,sy, scaledRoomW,scaledRoomH);
+        speakerLabel.textContent=
+          `Speaker: Angle=${sAngleDeg}°, Trim=${trimFt.toFixed(1)} ft, Ori=${orientation}`;
+        speakerLabel.setAttribute('x', c.x);
+        speakerLabel.setAttribute('y', c.y);
+      }
+<span style="background: #ffff00">calculateFrontRowThrowAndRangeRatio();</span>
+    }
+
+    // Attach event listeners more explicitly
+    const eventElements= [
+      unitsFeetRadio, unitsMetersRadio,
+      roomLengthInput, roomHeightInput,
+      stageDepthInput, stageHeightInput,
+      audienceDepthInput, frontRowInput,
+      trimHeightInput, speakerPosInput, speakerAngleInput,
+      dispVInput, dispHInput, showCoverageInput,
+      numSpeakersInput, baseSensInput, speakerWattInput
+    ];
+<span style="background: #ffff00">function calculateFrontRowThrowAndRangeRatio() {</span>
+<span style="background: #ffff00">    // Access necessary values</span>
+<span style="background: #ffff00">    let stageSide = [...stageSideInputs].find(r =&gt; r.checked)?.value || 'left';</span>
+<span style="background: #ffff00">    let trimHeightFt = toFeet(parseFloat(trimHeightInput.value) || 0);</span>
+<span style="background: #ffff00">    let speakerThrow = fromFeetToUserUnits(throwDistFt); // Ensure throwDistFt is calculated in `updateDiagram`</span>
+<span style="background: #ffff00">    let speakerX = parseFloat(speakerRect.getAttribute('x')) || 0;</span>
+
+<span style="background: #ffff00">    // Calculate front row edge based on stage side</span>
+<span style="background: #ffff00">    let frontRowX = stageSide === &quot;left&quot;</span>
+<span style="background: #ffff00">        ? parseFloat(stageRect.getAttribute('x')) + parseFloat(stageRect.getAttribute('width')) + scaledFrontRowDistance</span>
+<span style="background: #ffff00">        : parseFloat(stageRect.getAttribute('x')) - scaledFrontRowDistance;</span>
+
+<span style="background: #ffff00">    // Calculate horizontal distance to front row edge</span>
+<span style="background: #ffff00">    let horizontalDistanceToFrontRow = Math.abs(speakerX - frontRowX);</span>
+
+<span style="background: #ffff00">    // Check if speaker is over the audience</span>
+<span style="background: #ffff00">    if ((stageSide === &quot;left&quot; &amp;&amp; speakerX &gt;= frontRowX) || (stageSide === &quot;right&quot; &amp;&amp; speakerX &lt;= frontRowX)) {</span>
+<span style="background: #ffff00">        document.getElementById(&quot;frontRowThrowLabel&quot;).textContent =</span>
+<span style="background: #ffff00">            &quot;Front Row Throw: Can't calculate because speaker is over audience.&quot;;</span>
+<span style="background: #ffff00">        document.getElementById(&quot;rangeRatioLabel&quot;).textContent = &quot;Range Ratio: N/A&quot;;</span>
+<span style="background: #ffff00">        return;</span>
+<span style="background: #ffff00">    }</span>
+
+<span style="background: #ffff00">    // Calculate Front Row Throw using Pythagorean theorem</span>
+<span style="background: #ffff00">    let frontRowThrowFt = Math.sqrt(</span>
+<span style="background: #ffff00">        Math.pow(trimHeightFt, 2) + Math.pow(horizontalDistanceToFrontRow, 2)</span>
+<span style="background: #ffff00">    );</span>
+<span style="background: #ffff00">    let frontRowThrow = fromFeetToUserUnits(frontRowThrowFt);</span>
+
+<span style="background: #ffff00">    // Update Front Row Throw label</span>
+<span style="background: #ffff00">    document.getElementById(&quot;frontRowThrowLabel&quot;).textContent =</span>
+<span style="background: #ffff00">        `Front Row Throw: ${frontRowThrow.toFixed(2)} ${unitsFeetRadio.checked ? 'ft' : 'm'}`;</span>
+
+<span style="background: #ffff00">    // Calculate Range Ratio</span>
+<span style="background: #ffff00">    let rangeRatio = speakerThrow / frontRowThrow;</span>
+
+<span style="background: #ffff00">    // Update Range Ratio label with context</span>
+<span style="background: #ffff00">    let rangeRatioText = rangeRatio &gt;= 4</span>
+<span style="background: #ffff00">        ? `${rangeRatio.toFixed(2)} (Line array or multiple speakers needed)`</span>
+<span style="background: #ffff00">        : `${rangeRatio.toFixed(2)} (Point source)`;</span>
+<span style="background: #ffff00">    document.getElementById(&quot;rangeRatioLabel&quot;).textContent = `Range Ratio: ${rangeRatioText}`;</span>
+<span style="background: #ffff00">}</span>
+
+    eventElements.forEach(el =&gt; el.addEventListener('input', updateDiagram));
+
+    // Additional radio sets
+    stageSideInputs.forEach(r =&gt; r.addEventListener('change', updateDiagram));
+    audienceHeightRadios.forEach(r =&gt; r.addEventListener('change', updateDiagram));
+    speakerOrientationInputs.forEach(r =&gt; r.addEventListener('change', updateDiagram));
+    speakerPhaseInputs.forEach(r =&gt; r.addEventListener('change', updateDiagram));
+
+    // Initialize
+    updateDiagram();
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
 </body>
 </html>
