@@ -1,0 +1,500 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 7.1.5.2 (MacOSX)"/>
+	<meta name="created" content="2025-01-09T23:19:12.056056015"/>
+	<meta name="changed" content="2025-01-10T22:11:02.324315054"/>
+</head>
+<body lang="en-US" dir="ltr"><p>&lt;!DOCTYPE html&gt;</p>
+<p>&lt;html lang=&quot;en&quot;&gt;</p>
+<p>&lt;head&gt;</p>
+<p>&lt;meta charset=&quot;UTF-8&quot; /&gt;</p>
+<p>&lt;title&gt;Room Designer&lt;/title&gt;</p>
+<p>&lt;style&gt;</p>
+<p>/* ... existing CSS ... */</p>
+<p>&lt;/style&gt;</p>
+<p>&lt;/head&gt;</p>
+<p>&lt;body&gt;</p>
+<p>&lt;h1&gt;Room Designer&lt;/h1&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- Unit Switch + Hide Labels --&gt;</p>
+<p>&lt;div class=&quot;controls&quot;&gt;</p>
+<p>&lt;!-- ... existing unit and label controls ... --&gt;</p>
+<p>&lt;/div&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- Room &amp; Stage Controls --&gt;</p>
+<p>&lt;div class=&quot;controls&quot;&gt;</p>
+<p>&lt;!-- ... existing room and stage inputs ... --&gt;</p>
+<p>&lt;/div&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- Audience --&gt;</p>
+<p>&lt;h2&gt;Audience&lt;/h2&gt;</p>
+<p>&lt;div class=&quot;controls&quot;&gt;</p>
+<p>&lt;!-- ... existing audience inputs ... --&gt;</p>
+<p>&lt;/div&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- Speaker Parameters --&gt;</p>
+<p>&lt;h2&gt;Speaker Parameters&lt;/h2&gt;</p>
+<p>&lt;div class=&quot;controls&quot;&gt;</p>
+<p>&lt;!-- ... existing speaker parameters ... --&gt;</p>
+<p>&lt;/div&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- Speaker Orientation &amp; Coverage --&gt;</p>
+<p>&lt;h2&gt;Speaker Orientation &amp; Coverage&lt;/h2&gt;</p>
+<p>&lt;div class=&quot;controls&quot;&gt;</p>
+<p>&lt;!-- ... existing orientation &amp; coverage controls ... --&gt;</p>
+<p>&lt;/div&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- Multiple Speakers &amp; Phase --&gt;</p>
+<p>&lt;h2&gt;Speaker Summation&lt;/h2&gt;</p>
+<p>&lt;div class=&quot;controls&quot;&gt;</p>
+<p>&lt;!-- ... existing summation inputs ... --&gt;</p>
+<p>&lt;/div&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- SPL Calculation Inputs --&gt;</p>
+<p>&lt;h2&gt;SPL Calculation Inputs&lt;/h2&gt;</p>
+<p>&lt;div class=&quot;controls&quot;&gt;</p>
+<p>&lt;!-- ... existing SPL inputs ... --&gt;</p>
+<p>&lt;/div&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- Insert Snippet A here: Speaker Options Headings and
+Toggles --&gt;</p>
+<p>&lt;!-- Begin Snippet A --&gt;</p>
+<p>&lt;h2&gt;Speaker Options&lt;/h2&gt;</p>
+<p>&lt;div class=&quot;controls&quot;&gt;</p>
+<p>&lt;div class=&quot;control-group&quot;&gt;</p>
+<p>&lt;label&gt;</p>
+<p>&lt;input type=&quot;checkbox&quot; id=&quot;addPointSourceSpeaker&quot;
+checked /&gt;</p>
+<p>Add Point Source Speaker</p>
+<p>&lt;/label&gt;</p>
+<p>&lt;/div&gt;</p>
+<p>&lt;/div&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;h2&gt;Line Array Options&lt;/h2&gt;</p>
+<p>&lt;div class=&quot;controls&quot;&gt;</p>
+<p>&lt;div class=&quot;control-group&quot;&gt;</p>
+<p>&lt;label&gt;</p>
+<p>&lt;input type=&quot;checkbox&quot; id=&quot;addLineArray&quot; /&gt;</p>
+<p>Add LineArray</p>
+<p>&lt;/label&gt;</p>
+<p>&lt;/div&gt;</p>
+<p>&lt;div class=&quot;control-group&quot;&gt;</p>
+<p>&lt;label&gt;</p>
+<p>&lt;input type=&quot;checkbox&quot; id=&quot;showCoveragePath&quot;
+/&gt;</p>
+<p>Show coverage path</p>
+<p>&lt;/label&gt;</p>
+<p>&lt;/div&gt;</p>
+<p>&lt;div class=&quot;control-group&quot;&gt;</p>
+<p>&lt;label&gt;</p>
+<p>Whole Array Tilt (°):</p>
+<p>&lt;input type=&quot;number&quot; id=&quot;wholeArrayTilt&quot;
+value=&quot;0&quot; min=&quot;-180&quot; max=&quot;180&quot;
+step=&quot;0.5&quot; /&gt;</p>
+<p>&lt;/label&gt;</p>
+<p>&lt;/div&gt;</p>
+<p>&lt;div class=&quot;control-group&quot;&gt;</p>
+<p>&lt;label&gt;</p>
+<p>&lt;input type=&quot;checkbox&quot; id=&quot;flipScene&quot; /&gt;</p>
+<p>Flip Scene</p>
+<p>&lt;/label&gt;</p>
+<p>&lt;/div&gt;</p>
+<p>&lt;!-- Add additional controls for splay angles if needed --&gt;</p>
+<p>&lt;/div&gt;</p>
+<p>&lt;!-- End Snippet A --&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;div id=&quot;diagramWrapper&quot;&gt;</p>
+<p>&lt;!-- Existing SVG with RoomDesigner content --&gt;</p>
+<p>&lt;svg id=&quot;roomDiagram&quot; width=&quot;600&quot;
+height=&quot;400&quot;&gt;</p>
+<p>&lt;defs&gt;</p>
+<p>&lt;!-- ... existing gradient definitions ... --&gt;</p>
+<p>&lt;/defs&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- Room, Stage, Audience, Speaker --&gt;</p>
+<p>&lt;rect id=&quot;roomRect&quot; x=&quot;0&quot; y=&quot;0&quot;
+width=&quot;1&quot; height=&quot;1&quot;&gt;&lt;/rect&gt;</p>
+<p>&lt;rect id=&quot;stageRect&quot; x=&quot;0&quot; y=&quot;0&quot;
+width=&quot;1&quot; height=&quot;1&quot;&gt;&lt;/rect&gt;</p>
+<p>&lt;rect id=&quot;audienceRect&quot; x=&quot;0&quot; y=&quot;0&quot;
+width=&quot;1&quot; height=&quot;1&quot;&gt;&lt;/rect&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- NEW: Group to hold the row divider lines --&gt;</p>
+<p>&lt;g id=&quot;audienceRowDividers&quot;&gt;&lt;/g&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;rect id=&quot;speakerRect&quot; x=&quot;0&quot; y=&quot;0&quot;
+width=&quot;1&quot; height=&quot;1&quot;&gt;&lt;/rect&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- On-axis throw line --&gt;</p>
+<p>&lt;path id=&quot;throwPath&quot; d=&quot;&quot; /&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- Horizontal coverage line (blue) --&gt;</p>
+<p>&lt;line id=&quot;coverageLine&quot; x1=&quot;0&quot; y1=&quot;0&quot;
+x2=&quot;0&quot; y2=&quot;0&quot; /&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- Labels --&gt;</p>
+<p>&lt;text id=&quot;lengthLabel&quot; x=&quot;0&quot; y=&quot;0&quot;&gt;&lt;/text&gt;</p>
+<p>&lt;text id=&quot;heightLabel&quot; x=&quot;0&quot; y=&quot;0&quot;&gt;&lt;/text&gt;</p>
+<p>&lt;text id=&quot;stageLabel&quot; x=&quot;0&quot; y=&quot;0&quot;&gt;&lt;/text&gt;</p>
+<p>&lt;text id=&quot;audienceLabel&quot; x=&quot;0&quot;
+y=&quot;0&quot;&gt;&lt;/text&gt;</p>
+<p>&lt;text id=&quot;speakerLabel&quot; x=&quot;0&quot; y=&quot;0&quot;&gt;&lt;/text&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- Insert Snippet B here: SVG Group for Line Array --&gt;</p>
+<p>&lt;!-- Begin Snippet B --&gt;</p>
+<p>&lt;g id=&quot;lineArrayGroup&quot;&gt;&lt;/g&gt;</p>
+<p>&lt;!-- End Snippet B --&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;/svg&gt;</p>
+<p>&lt;/div&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;!-- Existing outputs --&gt;</p>
+<p>&lt;div id=&quot;throwOutput&quot;&gt;&lt;/div&gt;</p>
+<p>&lt;div id=&quot;splOutput&quot;&gt;&lt;/div&gt;</p>
+<p>&lt;div id=&quot;larOutput&quot;&gt;&lt;/div&gt;</p>
+<p>&lt;div id=&quot;frontRowOutput&quot;&gt;&lt;/div&gt;</p>
+<p>&lt;div id=&quot;rangeRatioOutput&quot;&gt;&lt;/div&gt;</p>
+<p>&lt;div id=&quot;splFrontDiffOutput&quot;&gt;&lt;/div&gt;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>&lt;script&gt;</p>
+<p>const FEET_TO_METERS = 0.3048;</p>
+<p>const scaleFeet = 10;</p>
+<p>const PI = 3.14;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// ... existing constants and element references ...</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// Insert Snippet C here: New element references for speaker
+options</p>
+<p>// Begin Snippet C</p>
+<p>const addPointSourceCheckbox =
+document.getElementById('addPointSourceSpeaker');</p>
+<p>const addLineArrayCheckbox =
+document.getElementById('addLineArray');</p>
+<p>const showCoverageCheckbox =
+document.getElementById('showCoveragePath');</p>
+<p>const wholeArrayTiltInput =
+document.getElementById('wholeArrayTilt');</p>
+<p>const flipSceneCheckbox = document.getElementById('flipScene');</p>
+<p>const lineArrayGroup = document.getElementById('lineArrayGroup');</p>
+<p>// Also add references for any new splay controls if needed.</p>
+<p>// End Snippet C</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// ... existing helper functions and variable declarations ...</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// Insert Snippet D here: Preserve original updateDiagram function</p>
+<p>// Begin Snippet D</p>
+<p>const originalUpdateDiagram = updateDiagram;</p>
+<p>// End Snippet D</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// Insert Snippet E here: Combined Update Diagram Function</p>
+<p>// Begin Snippet E</p>
+<p>function combinedUpdateDiagram() {</p>
+<p>// Call original update logic</p>
+<p>originalUpdateDiagram();</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// Handle point source speaker logic</p>
+<p>if(addPointSourceCheckbox.checked) {</p>
+<p>// Original speaker logic already handled</p>
+<p>} else {</p>
+<p>// Optionally hide point speaker visuals</p>
+<p>}</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// Handle line array logic</p>
+<p>if(addLineArrayCheckbox.checked) {</p>
+<p>// Retrieve and parse line array parameters, similar to previous
+snippet guidelines.</p>
+<p>let trimHeightFt =
+parseFloat(document.getElementById('trimHeight').value) || 0;</p>
+<p>let speakerPosFt =
+parseFloat(document.getElementById('speakerPosition').value) || 0;</p>
+<p>let arraySize =
+parseInt(document.getElementById('lineArraySize').value) || 1;</p>
+<p>arraySize = Math.max(1, Math.min(arraySize, 6));</p>
+<p>// ... update splay controls, gather other parameters ...</p>
+<p><br/>
+<br/>
+
+</p>
+<p>const showCoverage = showCoverageCheckbox.checked;</p>
+<p>const wholeArrayTiltDeg = parseFloat(wholeArrayTiltInput.value) ||
+0;</p>
+<p>const flip = flipSceneCheckbox.checked;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// ... existing code in combinedUpdateDiagram ...</p>
+<p><br/>
+<br/>
+
+</p>
+<p>if(addLineArrayCheckbox.checked) {</p>
+<p>// Retrieve and parse line array parameters</p>
+<p>let trimHeightFt =
+parseFloat(document.getElementById('trimHeight').value) || 0;</p>
+<p>let speakerPosFt =
+parseFloat(document.getElementById('speakerPosition').value) || 0;</p>
+<p>let arraySize =
+parseInt(document.getElementById('lineArraySize').value) || 1;</p>
+<p>arraySize = Math.max(1, Math.min(arraySize, 6));</p>
+<p>// (Here, you would update the visibility of splay controls based
+on arraySize, if applicable.)</p>
+<p><br/>
+<br/>
+
+</p>
+<p>const showCoverage = showCoverageCheckbox.checked;</p>
+<p>const wholeArrayTiltDeg = parseFloat(wholeArrayTiltInput.value) ||
+0;</p>
+<p>const flip = flipSceneCheckbox.checked;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// --- Begin Adapted Line Array Drawing Logic ---</p>
+<p>// Define constants for speaker dimensions (you might have these
+defined globally already)</p>
+<p>const scaleFeetLocal = 10; // same as your global scaleFeet, if
+not accessible</p>
+<p>const SPEAKER_WIDTH = 2; // example dimension</p>
+<p>const LEFT_HEIGHT = 0.6;</p>
+<p>const RIGHT_HEIGHT = 1.0;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>const widthPx = SPEAKER_WIDTH * scaleFeetLocal;</p>
+<p>const leftHeightPx = LEFT_HEIGHT * scaleFeetLocal;</p>
+<p>const rightHeightPx = RIGHT_HEIGHT * scaleFeetLocal;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>const axisX = speakerPosFt * scaleFeetLocal + widthPx;</p>
+<p>let currentX = speakerPosFt * scaleFeetLocal;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>let svgHeight = parseFloat(svg.getAttribute('height'));</p>
+<p>let initialY = svgHeight - (trimHeightFt * scaleFeetLocal) -
+rightHeightPx;</p>
+<p>let currentY = initialY;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>let cumulativeAngle = 0;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// Clear any existing line array elements first</p>
+<p>while(lineArrayGroup.firstChild) {</p>
+<p>lineArrayGroup.removeChild(lineArrayGroup.firstChild);</p>
+<p>}</p>
+<p><br/>
+<br/>
+
+</p>
+<p>for (let i = 0; i &lt; arraySize; i++) {</p>
+<p>let polygon =
+document.createElementNS('http://www.w3.org/2000/svg', 'polygon');</p>
+<p>let points = [</p>
+<p>`${currentX},${currentY}`,</p>
+<p>`${currentX + widthPx},${currentY}`,</p>
+<p>`${currentX + widthPx},${currentY + rightHeightPx}`,</p>
+<p>`${currentX},${currentY + leftHeightPx}`</p>
+<p>].join(&quot; &quot;);</p>
+<p>polygon.setAttribute('points', points);</p>
+<p>polygon.setAttribute('fill', '#999');</p>
+<p>polygon.setAttribute('stroke', '#000');</p>
+<p>lineArrayGroup.appendChild(polygon);</p>
+<p><br/>
+<br/>
+
+</p>
+<p>if (showCoverage) {</p>
+<p>let centerX = currentX + widthPx;</p>
+<p>let centerY = currentY + rightHeightPx / 2;</p>
+<p>const coverageLength = 50;</p>
+<p>let orientation = cumulativeAngle;</p>
+<p>let endX = centerX + coverageLength * Math.cos(orientation);</p>
+<p>let endY = centerY + coverageLength * Math.sin(orientation);</p>
+<p><br/>
+<br/>
+
+</p>
+<p>let line = document.createElementNS('http://www.w3.org/2000/svg',
+'line');</p>
+<p>line.setAttribute('x1', centerX);</p>
+<p>line.setAttribute('y1', centerY);</p>
+<p>line.setAttribute('x2', endX);</p>
+<p>line.setAttribute('y2', endY);</p>
+<p>line.setAttribute('stroke', 'red');</p>
+<p>line.setAttribute('stroke-width', '2');</p>
+<p>lineArrayGroup.appendChild(line);</p>
+<p>}</p>
+<p><br/>
+<br/>
+
+</p>
+<p>if (i &lt; arraySize - 1) {</p>
+<p>let angleDeg = parseFloat(splayInputs[i].value) || 0;</p>
+<p>let angle = angleDeg * (Math.PI / 180);</p>
+<p>cumulativeAngle += angle;</p>
+<p>let horizShift = Math.tan(angle) * rightHeightPx;</p>
+<p>currentX -= horizShift;</p>
+<p>currentY += rightHeightPx;</p>
+<p>}</p>
+<p>}</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// Build transformation string for line array</p>
+<p>let transforms = [];</p>
+<p>transforms.push(`rotate(${wholeArrayTiltDeg}, ${axisX}, ${initialY
++ rightHeightPx/2})`);</p>
+<p>if(flip) {</p>
+<p>transforms.push(`translate(${2*axisX},0) scale(-1,1)`);</p>
+<p>}</p>
+<p>lineArrayGroup.setAttribute('transform', transforms.join(' '));</p>
+<p>// --- End Adapted Line Array Drawing Logic ---</p>
+<p><br/>
+<br/>
+
+</p>
+<p>} else {</p>
+<p>// Clear line array visuals if not in use</p>
+<p>while(lineArrayGroup.firstChild) {</p>
+<p>lineArrayGroup.removeChild(lineArrayGroup.firstChild);</p>
+<p>}</p>
+<p>}</p>
+<p>} else {</p>
+<p>// Clear line array visuals if not in use</p>
+<p>while(lineArrayGroup.firstChild) {</p>
+<p>lineArrayGroup.removeChild(lineArrayGroup.firstChild);</p>
+<p>}</p>
+<p>}</p>
+<p>}</p>
+<p>// End Snippet E</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// Assign combined update function</p>
+<p>updateDiagram = combinedUpdateDiagram;</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// Insert Snippet F here: Attaching new event listeners</p>
+<p>// Begin Snippet F</p>
+<p>const inputs = [</p>
+<p>// List any original inputs if necessary,</p>
+<p>addPointSourceCheckbox,</p>
+<p>addLineArrayCheckbox,</p>
+<p>showCoverageCheckbox,</p>
+<p>wholeArrayTiltInput,</p>
+<p>flipSceneCheckbox</p>
+<p>// Include references to splayInputs if needed.</p>
+<p>];</p>
+<p>inputs.forEach(el =&gt; el.addEventListener('input',
+updateDiagram));</p>
+<p>// End Snippet F</p>
+<p><br/>
+<br/>
+
+</p>
+<p>// Initialize with the combined update function</p>
+<p>updateDiagram();</p>
+<p>&lt;/script&gt;</p>
+<p>&lt;/body&gt;</p>
+<p>&lt;/html&gt;</p>
+</body>
+</html>
