@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About RoomDesigner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 0 10px;
+      color: #333;
+    }
+    h1, h2, h3 {
+      color: #222;
+    }
+    ul {
+      list-style-type: disc;
+      margin-left: 20px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    hr {
+      margin: 20px 0;
+    }
+    strong {
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to RoomDesigner!</h1>
+  <p>
+    RoomDesigner is a 2D side-view visualization tool for the early stages of planning a stationary PA system. 
+    It helps you configure speaker placement and orientation, estimate SPL differentials from the front to the back of an audience, and visualize acoustic coverage.
+  </p>
+
+  <h2>Getting Started</h2>
+  
+  <h3>Default Setup:</h3>
+  <p>
+    By default, Room Designer is configured for a 40 ft deep by 20ft high room with an audience five rows deep. The speaker spec defaults approximate a typical "run and gun" setup using a JBL SRX815 speaker mounted upright on speaker stands with a ten degree downtilt. This provides a baseline scenario that you can modify according to your needs and rig.
+  </p>
+
+  <h3>1. Room &amp; Stage Setup</h3>
+  <ul>
+    <li><strong>Room Dimensions:</strong> Input the overall size of the room.</li>
+    <li><strong>Audience Position:</strong> Choose whether the audience is seated or standing to adjust acoustic considerations.</li>
+    <li><strong>Stage Height &amp; Length:</strong> Enter the height and length of the stage to accurately represent your performance area.</li>
+    <li><strong>Front Row Distance:</strong> Set the distance from the stage to the front row of the audience. This defines the starting point for coverage calculations.</li>
+  </ul>
+
+  <h3>2. Speaker Placement &amp; Orientation</h3>
+  <ul>
+    <li><strong>Speaker Location:</strong>
+      <ul>
+        <li><em>Trim Height (Vertical):</em> Adjust the vertical position of the speaker relative to the stage.</li>
+        <li><em>Speaker Position (Horizontal):</em> Set how far along the stage the speaker is placed.</li>
+      </ul>
+    </li>
+    <li><strong>Speaker Angle (Downtilt):</strong> Enter a negative value (e.g., -1°) to tilt the speaker downward. Tilting at least one degree will project an on-axis line, crucial for estimating coverage.</li>
+    <li><strong>Speaker Specifications:</strong> For best results, input all known specifications:
+      <ul>
+        <li>Sensitivity</li>
+        <li>Wattage provided</li>
+        <li>Vertical dispersion</li>
+        <li>Horizontal dispersion</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>3. Coverage Features</h3>
+  <ul>
+    <li><strong>Show Lateral Coverage:</strong> Check this option to calculate Bob McCarthy's Lateral Aspect Ratio multiplier:
+      <ul>
+        <li>This is one method of estimating speaker coverage, projecting the speaker's expanding coverage area onto a 2D surface</li>
+        <li>LAR calculation is a multiplier, so it works in both feet and meters</li>
+        <li>If the speaker is upright, lateral coverage uses the vertical dispersion spec.</li>
+        <li>If the speaker is side down, lateral coverage uses the horizontal dispersion spec.</li>
+        <li>This helps estimate the length of the speaker’s coverage area over the audience (from front to back), estimating combined off-axis and distance loss.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>4. Multiple Speakers</h3>
+  <ul>
+    <li><strong>Number of Speakers:</strong> Input how many speakers you're using.</li>
+    <li><strong>Phase Selection:</strong>
+      <ul>
+        <li><em>In Phase:</em> Doubling speakers increases SPL by 6dB.</li>
+        <li><em>Random Phase:</em> Doubling speakers increases SPL by 3dB.</li>
+      </ul>
+    </li>
+    <li><strong>Important:</strong> The multiple speaker feature is for rough estimates only and should not be used for line array calculations, which have more complex interactions.</li>
+  </ul>
+
+  <h3>5. SPL Estimation</h3>
+  <ul>
+    <li>The tool applies the inverse square law to calculate SPL loss at the intersection of the audience and the speaker’s on-axis line.</li>
+    <li><strong>Important:</strong> Ensure you set a minimum 1° tilt. A speaker aimed completely over the audience will prevent the calculator from working.</li>
+  </ul>
+
+  <h3>6. Using the Range Ratio Statistic</h3>
+  <ul>
+    <li><strong>Aim the Speaker:</strong> Start by angling the speaker to cover the furthest point in the audience.</li>
+    <li><strong>Range Ratio:</strong> This statistic is the ratio of the furthest on-axis throw to the distance to the front row. It estimates the SPL differential between the front and back rows.
+      <ul>
+        <li><em>Note:</em> If the range ratio exceeds 4, consider exploring line array, constant curvature, or delay line solutions, as a single point source speaker may not provide adequate coverage.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>7. Orientation &amp; Units</h3>
+  <ul>
+    <li>Switch between feet and meters depending on your preference.</li>
+    <li>Choose whether the stage appears on the right or left side of the view.</li>
+  </ul>
+
+  <h2>Important Caveats</h2>
+  <ul>
+    <li><strong>Early Stage Tool:</strong> Room Designer provides rough predictions for the initial stages of a PA system design. It is best used for conceptual planning and should not be relied upon for mission-critical decisions.</li>
+    <li><strong>Not for Line/Constant Curvature Arrays:</strong> The multiple speaker feature is not intended for precise line array design calculations. I am working on a line array calculator tool.</li>
+    <li><strong>Mains Only:</strong> This tool does not have any functionality for incorporating subs or delay speakers. I hope to add these features.</li>
+    <li><strong>Disclaimer:</strong> Room Designer is not endorsed by or affiliated with Bob McCarthy. It is a fan-made tool that uses some of his concepts for estimation purposes. Any errors are my own.</li>
+  </ul>
+</body>
+</html>
